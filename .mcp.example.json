@@ -1,0 +1,34 @@
+{
+  "_note": "MCP wrapper layer for the ade-ops lab. 'dde' wraps the Databricks workspace API (canonical: databricks-mcp-server from the open-source Databricks AI Dev Kit); 'serena' wraps Microsoft's Power BI Modeling MCP (optional, only for /powerbi-* skills). The Databricks profile is referenced by name (e.g. DEMO) and resolved from ~/.databrickscfg. Per-distribution seats may bind to different profiles via their own .mcp.json — that file is gitignored.",
+  "_setup": "Copy this file to .mcp.json and replace <your-user> with your Windows username. The real .mcp.json is gitignored. The 'serena' entry is optional — only needed for /powerbi-model-edit, /powerbi-publish, and TMDL export workflows.",
+  "_setup_dde_prereq": "The 'dde' server requires the Databricks AI dev kit at ~/.ai-dev-kit/ (open-source: https://github.com/databricks-solutions/ai-dev-kit). One-time install on Windows: git clone https://github.com/databricks-solutions/ai-dev-kit \"$env:USERPROFILE\\.ai-dev-kit\\repo\" ; cd \"$env:USERPROFILE\\.ai-dev-kit\\repo\" ; .\\install.ps1 — venv lands at ~/.ai-dev-kit/.venv/ matching the 'dde' command path below. Also needs a [DEMO] profile in ~/.databrickscfg (referenced via DATABRICKS_CONFIG_PROFILE).",
+  "_setup_serena_prereq": "The 'serena' server wraps Microsoft's official Power BI Modeling MCP — VS Code Marketplace extension 'analysis-services.powerbi-modeling-mcp', distributed as a VSIX (standard ZIP). Manual install: download https://marketplace.visualstudio.com/_apis/public/gallery/publishers/analysis-services/vsextensions/powerbi-modeling-mcp/0.5.7/vspackage?targetPlatform=win32-x64 (latest known 0.5.7 as of 2026-05-21 — see https://marketplace.visualstudio.com/items?itemName=analysis-services.powerbi-modeling-mcp for newer), rename to .zip, extract to C:/MCPServers/PowerBIModelingMCP_x64/. Resulting binary at C:/MCPServers/PowerBIModelingMCP_x64/extension/server/powerbi-modeling-mcp.exe.",
+  "_setup_playwright_prereq": "The 'playwright' server is used for visual feedback loops on Power BI reports (open report URL, screenshot, iterate). PREREQ: Node.js LTS must be on PATH (`@playwright/mcp` is npx-launched). On Windows: `winget install OpenJS.NodeJS.LTS` then restart Claude Code so the updated PATH is inherited. Verify with `node --version` and `npx --version`. Without Node.js the MCP server fails silently — no `mcp__playwright__*` tools in the tool list and no error surfaced. SERVER BINDING: this entry is bound to a DEDICATED Edge profile to keep the operator identity used for screenshots isolated from any Windows-linked accounts (e.g. corporate SSO). On first run the profile is empty; log in once with the identity that has access to the Power BI workspace and the session cookie persists for subsequent screenshot iterations. This entry OVERRIDES any user-level playwright MCP registration on a per-project basis so each seat can bind its own profile.",
+  "mcpServers": {
+    "dde": {
+      "command": "C:/Users/<your-user>/.ai-dev-kit/.venv/Scripts/python.exe",
+      "args": ["C:/Users/<your-user>/.ai-dev-kit/repo/databricks-mcp-server/run_server.py"],
+      "env": {
+        "DATABRICKS_CONFIG_PROFILE": "DEMO"
+      }
+    },
+    "serena": {
+      "command": "C:/MCPServers/PowerBIModelingMCP_x64/extension/server/powerbi-modeling-mcp.exe",
+      "args": ["--start"],
+      "cwd": "C:/MCPServers/PowerBIModelingMCP_x64/extension/server"
+    },
+    "playwright": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@playwright/mcp@0.0.37",
+        "--browser",
+        "msedge",
+        "--user-data-dir",
+        "C:/Users/<your-user>/.playwright_edge_ade_demo"
+      ],
+      "env": {}
+    }
+  }
+}

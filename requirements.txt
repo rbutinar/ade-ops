@@ -1,0 +1,17 @@
+# ade-ops — Agentic Data Engineering Operations
+# Python 3.10+
+
+pyyaml>=6.0
+httpx>=0.27
+click>=8.1
+# truststore: makes Python use the OS certificate store (Windows/macOS/Linux)
+# instead of certifi. Required on machines where a corporate proxy (e.g. <organization>
+# SSL inspection) injects a CA not present in certifi's bundle.
+truststore>=0.9
+# msal: used by the Fabric / Fabric Warehouse connectors for SP / device-code /
+# MSAL-cache auth. Optional at runtime — lazy-imported when needed.
+msal>=1.20
+# pyodbc: used by the Fabric Warehouse connector for the SQL endpoint.
+# Optional — only required when you use the `fabric_warehouse` connector.
+# Needs the matching ODBC Driver (17 or 18) for SQL Server installed system-wide.
+pyodbc>=4.0

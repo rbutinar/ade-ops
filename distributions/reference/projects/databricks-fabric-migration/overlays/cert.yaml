@@ -1,0 +1,20 @@
+databricks:
+  catalog: acme_cert
+  schema: default
+  workspace_path: /Shared/AcmeSales/CERT
+
+fabric:
+  workspace_id: ${FABRIC_WORKSPACE_CERT}
+  lakehouse_name: acme_lakehouse
+
+power_bi:
+  report_workspace_id: ${FABRIC_WORKSPACE_CERT}
+  model_workspace_id: ${FABRIC_WORKSPACE_CERT}
+
+transforms:
+  - pattern: "workspace.default"
+    replace: "acme_cert.default"
+
+exclude:
+  - "_setup/*"
+  - "_*"

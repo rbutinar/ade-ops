@@ -1,0 +1,18 @@
+# Overlay — PROD environment
+# Applied during push to transform src/ assets for prod target
+
+databricks:
+  catalog: "{prod_catalog}"
+  schema: "{schema}"
+  workspace_path: "{prod_workspace_path}"
+
+# power_bi:
+#   model_workspace_id: "{model_workspace_id}"
+#   model_name: "{prod_model_name}"
+#   model_id: "{prod_model_id}"
+#   report_workspace_id: "{prod_report_workspace_id}"
+#   report_suffix: ""
+#   tables_excluded: []
+#   column_exclusions: {}
+#   item_renames: {}
+#   auth_method: msal_device_code

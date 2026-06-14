@@ -1,0 +1,107 @@
+# AcmeSales_Overview — report manifest for /pbir-create
+#
+# This is the *recipe*, not a pre-built report: the agent turns it into a PBIR
+# .Report on the fly and deploys it, so the build is reasoned and reproducible
+# (and re-runnable as a starter template). Build with:
+#
+#   /pbir-create AcmeSales_Overview --env dev --model-id {guid} \
+#       --spec reports/AcmeSales_Overview.spec.yaml
+#
+# (the model GUID comes from /powerbi-publish of AcmeSales.SemanticModel; or use
+#  --model-name AcmeSales to bind the sibling local .SemanticModel folder.)
+#
+# Entities + properties below match the AcmeSales Import-mode model:
+#   fct_sales   measures: Total Revenue, Total Quantity, Transaction Count,
+#                         Avg Revenue per Transaction, Distinct Products Sold
+#               columns : channel, region, sale_date, fiscal_year/quarter/month
+#   dim_product columns : product_id, product_name, category, unit_price
+#   dim_customer columns: customer_id, customer_name, region, segment, ...
+
+report:
+  name: AcmeSales_Overview
+  theme: AcmeSales
+  width: 1280
+  height: 720
+  theme_json:
+    name: AcmeSales
+    dataColors: ["#1F4E79", "#5B9BD5", "#7030A0", "#70AD47", "#FFC000"]
+    background: "#FAFAFA"
+    foreground: "#252423"
+    tableAccent: "#1F4E79"
+
+pages:
+  - name: Overview
+    background_color: "#FAFAFA"
+    visuals:
+      - type: banner
+        title: Acme Sales — Overview
+        subtitle: "Databricks gold layer · Import mode · Power BI Pro"
+        position: { x: 0, y: 0, width: 1280, height: 84 }
+        style:
+          background_color: "#1F4E79"
+          title_color: "#FFFFFF"
+          subtitle_color: "#D9E2EE"
+          title_size_pt: 22
+          subtitle_size_pt: 11
+
+      - type: card_visual
+        title: Total Revenue
+        value: { entity: fct_sales, property: Total Revenue, _type: measure }
+        position: { x: 24, y: 110, width: 400, height: 110 }
+        style: { title_color: "#1F4E79", background_color: "#FFFFFF", border: true, shadow: true }
+
+      - type: card_visual
+        title: Transactions
+        value: { entity: fct_sales, property: Transaction Count, _type: measure }
+        position: { x: 440, y: 110, width: 400, height: 110 }
+        style: { title_color: "#1F4E79", background_color: "#FFFFFF", border: true, shadow: true }
+
+      - type: card_visual
+        title: Distinct Products Sold
+        value: { entity: fct_sales, property: Distinct Products Sold, _type: measure }
+        position: { x: 856, y: 110, width: 400, height: 110 }
+        style: { title_color: "#1F4E79", background_color: "#FFFFFF", border: true, shadow: true }
+
+      - type: bar_chart
+        title: Revenue by Channel
+        category: { entity: fct_sales, property: channel, _type: column }
+        values:
+          - { entity: fct_sales, property: Total Revenue, _type: measure }
+        horizontal: false
+        show_legend: false
+        show_labels: true
+        position: { x: 24, y: 240, width: 608, height: 240 }
+        style:
+          title_color: "#1F4E79"
+          background_color: "#FFFFFF"
+          border: true
+          data_point_color: "#5B9BD5"
+
+      - type: bar_chart
+        title: Top Categories by Revenue
+        category: { entity: dim_product, property: category, _type: column }
+        values:
+          - { entity: fct_sales, property: Total Revenue, _type: measure }
+        horizontal: true
+        show_legend: false
+        position: { x: 648, y: 240, width: 608, height: 240 }
+        style:
+          title_color: "#1F4E79"
+          background_color: "#FFFFFF"
+          border: true
+          data_point_color: "#7030A0"
+
+      - type: table
+        title: Product Detail
+        fields:
+          - { entity: dim_product, property: category, _type: column }
+          - { entity: dim_product, property: product_name, _type: column }
+          - { entity: dim_product, property: unit_price, _type: column }
+          - { entity: fct_sales, property: Total Revenue, _type: measure }
+        position: { x: 24, y: 500, width: 1232, height: 180 }
+        style: { title_color: "#1F4E79", background_color: "#FFFFFF", border: true }
+
+      - type: textbox
+        text: "Reference: databricks-to-powerbi (Import). Built via /pbir-create --spec."
+        position: { x: 32, y: 692, width: 1200, height: 20 }
+        style: { font_size: 8, font_color: "#595959" }

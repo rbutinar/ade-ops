@@ -1,0 +1,40 @@
+table dim_product
+	lineageTag: 465cdf0e-8aa2-4ba8-b3f5-38d8da5f7535
+	sourceLineageTag: [dbo].[gold_dm_product]
+
+	column product_id
+		dataType: string
+		sourceColumn: product_id
+		lineageTag: a9e7e83b-924f-418a-a363-02efacdc9357
+		sourceLineageTag: product_id
+		summarizeBy: none
+
+	column product_name
+		dataType: string
+		sourceColumn: product_name
+		lineageTag: 47397390-c531-48a7-990a-fee6733a9cc6
+		sourceLineageTag: product_name
+		summarizeBy: none
+
+	column category
+		dataType: string
+		sourceColumn: category
+		lineageTag: 92951dd5-e15f-49af-a38d-5de7871b557c
+		sourceLineageTag: category
+		summarizeBy: none
+
+	column unit_price
+		dataType: double
+		sourceColumn: unit_price
+		lineageTag: 81a26143-a9df-4d36-b1ec-dd44e8e94207
+		sourceLineageTag: unit_price
+		summarizeBy: none
+
+	partition dim_product = m
+		mode: import
+		source =
+				let
+					Source = DatabaseQuery,
+					Data = Source{[Schema="default", Item="gold_dm_product"]}[Data]
+				in
+					Data

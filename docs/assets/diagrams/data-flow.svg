@@ -1,0 +1,48 @@
+<svg viewBox="0 0 760 312" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="t3 d3">
+  <title id="t3">How the data flows</title>
+  <desc id="d3">In the default scenario Databricks engineers the data through a medallion architecture and Power BI provides the BI layer with semantic models and reports. Microsoft Fabric with DirectLake is an optional path. The platforms coexist.</desc>
+  <style>
+    text{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+    .mono{font-family:ui-monospace,"Cascadia Code","SF Mono",Menlo,Consolas,monospace}
+    .surf{fill:#f5f4ef;stroke:#dcd8cc;stroke-width:1.5}
+    .surf2{fill:#efede6}
+    .tp{fill:#23241f}.ts{fill:#6f6f67}.tt{fill:#8a897e}
+    .ac{fill:#4f6bed}.acs{stroke:#4f6bed;fill:none}
+    .opt{stroke:#8a897e;fill:none;opacity:.7}.optf{fill:#8a897e;opacity:.7}
+    @media (prefers-color-scheme:dark){
+      .surf{fill:#26262b;stroke:#3a3a42}.surf2{fill:#1f2024}
+      .tp{fill:#ededed}.ts{fill:#b2b2aa}.tt{fill:#8f8f88}
+      .ac{fill:#8aa0ff}.acs{stroke:#8aa0ff}
+      .opt{stroke:#8f8f88}.optf{fill:#8f8f88}
+    }
+  </style>
+  <defs>
+    <marker id="ah3" viewBox="0 0 10 10" refX="7.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" class="ac"/>
+    </marker>
+    <marker id="ah3m" viewBox="0 0 10 10" refX="7.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" class="optf"/>
+    </marker>
+  </defs>
+  <text x="30" y="32" font-size="17" font-weight="700" class="tp">How the data flows</text>
+  <text x="30" y="53" font-size="12.5" class="ts">Default scenario — Databricks engineers the data, Power BI visualizes it. Fabric optional.</text>
+  <rect x="40" y="92" width="250" height="104" rx="14" class="surf"/>
+  <text x="165" y="132" text-anchor="middle" font-size="18" font-weight="700" class="tp">Databricks</text>
+  <text x="165" y="157" text-anchor="middle" font-size="12.5" class="ts">data engineering</text>
+  <text x="165" y="179" text-anchor="middle" font-size="11.5" class="tt mono">bronze → silver → gold</text>
+  <rect x="470" y="92" width="250" height="104" rx="14" class="surf"/>
+  <text x="595" y="132" text-anchor="middle" font-size="18" font-weight="700" class="tp">Power BI</text>
+  <text x="595" y="157" text-anchor="middle" font-size="12.5" class="ts">the BI layer</text>
+  <text x="595" y="179" text-anchor="middle" font-size="11.5" class="tt">semantic model · reports</text>
+  <text x="380" y="140" text-anchor="middle" font-size="11" font-weight="600" class="ac">Import / DirectQuery</text>
+  <line x1="290" y1="150" x2="462" y2="150" class="acs" stroke-width="3" stroke-dasharray="6 5" marker-end="url(#ah3)">
+    <animate attributeName="stroke-dashoffset" from="22" to="0" dur="1s" repeatCount="indefinite"/>
+  </line>
+  <text x="380" y="216" text-anchor="middle" font-size="10.5" letter-spacing="0.5" class="tt">OPTIONAL</text>
+  <line x1="250" y1="196" x2="332" y2="226" class="opt" stroke-width="2" stroke-dasharray="4 4" marker-end="url(#ah3m)"/>
+  <line x1="428" y1="226" x2="510" y2="196" class="opt" stroke-width="2" stroke-dasharray="4 4" marker-end="url(#ah3m)"/>
+  <rect x="305" y="226" width="150" height="58" rx="12" class="surf2"/>
+  <text x="380" y="251" text-anchor="middle" font-size="14" font-weight="700" class="ts">Fabric</text>
+  <text x="380" y="270" text-anchor="middle" font-size="10" class="tt mono">lakehouse · DirectLake</text>
+  <text x="380" y="305" text-anchor="middle" font-size="11.5" class="ts">Both platforms coexist — ade-ops treats each the same.</text>
+</svg>

@@ -1,0 +1,30 @@
+# Per-seat deck config — committed as example only.
+#
+# Copy to ``config/decks.yaml`` (gitignored) and edit. The engine
+# resolves ``${VAR}`` references from ``os.environ`` at operation time.
+#
+# On Windows, OneDrive sync sets these env vars automatically when the
+# corresponding OneDrive account is signed in:
+#   ${OneDrive}            -> personal OneDrive root
+#   ${OneDriveCommercial}  -> <organization> (or other tenant) OneDrive root
+#
+# See core/conventions/deck-template.md for the convention, including
+# how to lay out the pack folders inside OneDrive.
+
+template_paths:
+  # Brand-neutral / public-OSS templates
+  community: "${OneDrive}/60. ADE - Community/templates/decks"
+
+  # <organization> corporate base (and other internal brand variants)
+  accenture: "${OneDriveCommercial}/60. ADE - <organization>/templates/decks/_base"
+
+  # Client-branded templates provided by <organization> (one sub-folder per client)
+  accenture-acme: "${OneDriveCommercial}/60. ADE - <organization>/templates/decks/acme"
+  # accenture-<other-client>: "${OneDriveCommercial}/60. ADE - <organization>/templates/decks/<other-client>"
+
+# Default pack when meta.pack is not set in a spec.
+default_pack: accenture
+
+# Default output location for built decks. May be omitted — then the
+# engine writes next to the spec file.
+output_dir: "${OneDrive}/60. ADE - Community/drafts/decks"

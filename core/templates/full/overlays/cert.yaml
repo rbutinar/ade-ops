@@ -1,0 +1,18 @@
+# Overlay — CERT environment
+# Applied during push to transform src/ assets for cert target
+
+databricks:
+  catalog: "{cert_catalog}"
+  schema: "{schema}"
+  workspace_path: "{cert_workspace_path}"
+
+# power_bi:
+#   model_workspace_id: "{model_workspace_id}"
+#   model_name: "{cert_model_name}"
+#   model_id: "{cert_model_id}"
+#   report_workspace_id: "{cert_report_workspace_id}"
+#   report_suffix: "_qa"
+#   tables_excluded: []
+#   column_exclusions: {}
+#   item_renames: {}
+#   auth_method: az_cli

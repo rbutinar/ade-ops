@@ -1,0 +1,100 @@
+# pm — regenerable projection (projection-as-slave; source of truth is ticket frontmatter)
+docs/pm/index/
+# knowledge — regenerable projection (source of truth is docs/knowledge/*.md frontmatter)
+docs/knowledge/index/
+# pm — per-clone ops-pm boot memory (CONTEXT.md etc.); clone-local, never tracked
+docs/pm/.claude/
+
+# Credentials — NEVER commit
+credentials.yaml
+.env
+.env.*
+
+# Per-seat deck config — points to OneDrive paths (per-operator).
+# Committed sibling: config/decks.yaml.example
+config/decks.yaml
+
+# Sanitization literal values — lab-only, consumed by /ops-publish engine.
+# Public sibling core/conventions/sanitization-patterns.md is structural-only.
+core/conventions/_private_sanitization_values.yaml
+
+# MCP runtime config (paths + profile references — .mcp.example.json is committed)
+.mcp.json
+
+# Per-seat launcher (paths/tenant/profile — launch-seat.ps1.example is committed)
+launch-seat.ps1
+
+# Playwright MCP local browser profile + screenshot cache
+.playwright-mcp/
+
+# Project working data
+_data/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+.venv/
+venv*/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Claude Code sessions
+.claude_sessions/
+
+# Claude Code per-user settings (Anthropic convention: the .local.json
+# suffix marks personal overrides — paths and permission rules vary by
+# operator). The shared baseline lives in .claude/settings.json instead.
+.claude/settings.local.json
+
+# Logs
+*.log
+
+# Per-project personal scratch — never synced to remote envs
+distributions/*/projects/*/local/
+
+# Seat manifest — identifies the local clone + identities + roles; never committed.
+# See core/conventions/seat.md for the schema and lifecycle.
+distributions/*/.seat.yaml
+
+# Per-seat session logs — durable per-seat memory written by /ops-session-close;
+# read at boot for continuity, never synced. (Closes the gap found 2026-06-07:
+# the skill assumed these were ignored but the rule was missing.)
+distributions/*/.seat-sessions/
+
+# Onboarding sentinel — per-seat first-run marker (date + scenario). Local-only.
+distributions/*/.ade-ops-onboarding-done
+
+# Demo distribution: all state/ is single-user, gitignore wholesale
+distributions/demo-claude/**/state/
+
+# /ops-port-back marker (local-only: tracks lab/DevOps alignment SHA)
+.claude/agents/ops-manager/last_port_back.yaml
+
+# /marketing-manager — personal Roberto workspace (lab-only, never committed)
+# Includes CONTEXT.md, IDENTITY.md, drafts/, drafts/img/, sources/, local/
+# (REST wrappers + .cache/), session briefs, editorial plans.
+.claude/agents/marketing-manager/
+
+# /ops-local-manager — per-clone local state (templates are committed,
+# the bootstrapped files and per-user friction logs are not).
+# Skill spec declares these gitignored; see .claude/commands/ops-local-manager.md.
+.claude/agents/ops-local-manager/CONTEXT.md
+.claude/agents/ops-local-manager/IDENTITY.md
+.claude/agents/ops-local-manager/users/
+.claude/agents/ops-local-manager/sessions/
+
+# Inter-agent consultation thread files — audit value medium, kept local
+.claude/agents/_threads/

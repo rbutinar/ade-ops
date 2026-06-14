@@ -1,0 +1,21 @@
+databricks:
+  catalog: acme_cert
+  schema: default
+  workspace_path: /Shared/AcmePowerBI/CERT
+
+power_bi:
+  report_workspace_id: ${PBI_WORKSPACE_CERT}
+  model_workspace_id: ${PBI_WORKSPACE_CERT}
+
+# See overlays/dev.yaml for the env-var meaning. CERT reads the acme_cert catalog.
+transforms:
+  - pattern: "<your-databricks-sql-host>"
+    replace: ${DATABRICKS_SQL_HOST}
+  - pattern: "<your-warehouse-id>"
+    replace: ${DATABRICKS_WAREHOUSE_ID}
+  - pattern: "<your-catalog>"
+    replace: "acme_cert"
+
+exclude:
+  - "_setup/*"
+  - "_*"

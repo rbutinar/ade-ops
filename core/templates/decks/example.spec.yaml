@@ -1,0 +1,66 @@
+# example.spec.yaml — reference deck spec.
+#
+# See core/conventions/deck-template.md for the full schema. This file
+# is a runnable example you can adapt: copy it to your project, edit
+# meta + slides, then run:
+#
+#   python -m core.cli deck-validate path/to/your.spec.yaml   # check refs
+#   python -m core.cli deck-build    path/to/your.spec.yaml   # build PPTX
+#
+# It targets the community pack + the neutral skeleton that ships in this
+# repo (your config/decks.yaml must declare a 'community' pack — see
+# config/decks.yaml.example). It shows BOTH addressing styles: slides 1-5
+# use named fields (sugar for templates with named placeholders); the last
+# slide uses the idx path (layout by index, placeholders by idx) — the path
+# you use for rich brand templates. Discover a template's real indices with:
+#
+#   python -m core.cli deck-catalog path/to/template.pptx
+
+meta:
+  title: "ade-ops — Deck example"
+  subtitle: "Reference spec showcasing both addressing styles"
+  author: "Roberto Butinar"
+  date: "2026-06-09"
+  pack: community
+  template: neutral_skeleton.pptx
+
+slides:
+  - layout: Title
+    title: "ade-ops"
+    subtitle: "Agentic Data Engineering Operations"
+
+  - layout: Section
+    title: "Where we are"
+
+  - layout: TitleAndContent
+    title: "Architecture in three tiers"
+    body:
+      - "core/ — engine + connectors (client-agnostic)"
+      - "distributions/ — per-client overlays (acme, demo, reference)"
+      - "Public preview gates lab work via /ops-publish"
+
+  - layout: TwoContent
+    title: "Roadmap"
+    left:
+      - "Q3 — second client distro"
+      - "Q3 — F2 backlog burn-down"
+      - "Q3 — GA release candidate"
+    right:
+      - "Q4 — third client wave"
+      - "Q4 — agentic onboarding GA"
+      - "Q4 — public showcase"
+
+  - layout: Quote
+    quote: "What if your data platform tool asked YOU what you have, instead of forcing you into its assumptions?"
+    attribution: "ade-ops positioning, 2026-05-26"
+
+  # Idx path — layout by index, placeholders by idx (run deck-catalog to map them).
+  # On the neutral skeleton, layout 1 is TitleAndContent: idx 0 = title, idx 1 = body.
+  - layout: 1
+    text:
+      0: "Next steps"
+    bullets:
+      1:
+        - "Clone the repo and run /ade-ops-onboarding"
+        - "File feedback on GitHub Discussions"
+        - "Roberto Butinar — github.com/rbutinar/ade-ops"

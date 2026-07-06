@@ -1,0 +1,47 @@
+<svg viewBox="0 0 760 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="t1 d1">
+  <title id="t1">The ade-ops assembly pipeline</title>
+  <desc id="d1">Author once in src, adapt per environment with overlays and patches, then deploy to Databricks, Fabric and Power BI across DEV, CERT and PROD. Diff before every push.</desc>
+  <style>
+    text{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+    .mono{font-family:ui-monospace,"Cascadia Code","SF Mono",Menlo,Consolas,monospace}
+    .surf{fill:#f5f4ef;stroke:#dcd8cc;stroke-width:1.5}
+    .surf2{fill:#efede6}
+    .tp{fill:#23241f}.ts{fill:#6f6f67}.tt{fill:#8a897e}
+    .ac{fill:#4f6bed}.acs{stroke:#4f6bed;fill:none}
+    @media (prefers-color-scheme:dark){
+      .surf{fill:#26262b;stroke:#3a3a42}.surf2{fill:#1f2024}
+      .tp{fill:#ededed}.ts{fill:#b2b2aa}.tt{fill:#8f8f88}
+      .ac{fill:#8aa0ff}.acs{stroke:#8aa0ff}
+    }
+  </style>
+  <defs>
+    <marker id="ah1" viewBox="0 0 10 10" refX="7.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" class="ac"/>
+    </marker>
+  </defs>
+  <text x="30" y="32" font-size="17" font-weight="700" class="tp">The assembly pipeline</text>
+  <text x="30" y="53" font-size="12.5" class="ts">One source of truth, adapted per environment, deployed behind a diff gate.</text>
+  <text x="124" y="92" text-anchor="middle" font-size="11" font-weight="700" letter-spacing="1.4" class="ac">AUTHOR</text>
+  <text x="372" y="92" text-anchor="middle" font-size="11" font-weight="700" letter-spacing="1.4" class="ac">ASSEMBLE</text>
+  <text x="628" y="92" text-anchor="middle" font-size="11" font-weight="700" letter-spacing="1.4" class="ac">DEPLOY</text>
+  <rect x="24" y="104" width="200" height="124" rx="14" class="surf"/>
+  <text x="124" y="152" text-anchor="middle" font-size="21" font-weight="700" class="tp mono">src/</text>
+  <text x="124" y="178" text-anchor="middle" font-size="12.5" class="ts">single source of truth</text>
+  <text x="124" y="200" text-anchor="middle" font-size="11.5" class="tt">notebooks · models · reports</text>
+  <rect x="272" y="104" width="200" height="124" rx="14" class="surf"/>
+  <text x="372" y="150" text-anchor="middle" font-size="15.5" font-weight="700" class="tp mono">overlays + patches</text>
+  <text x="372" y="177" text-anchor="middle" font-size="12.5" class="ts">per environment</text>
+  <text x="372" y="199" text-anchor="middle" font-size="11.5" class="tt">catalog · schema · excludes</text>
+  <rect x="520" y="104" width="216" height="124" rx="14" class="surf"/>
+  <text x="628" y="146" text-anchor="middle" font-size="17" font-weight="700" class="tp">your platforms</text>
+  <text x="628" y="172" text-anchor="middle" font-size="12.5" class="ts">Databricks · Fabric · Power BI</text>
+  <text x="628" y="198" text-anchor="middle" font-size="11" class="tt">across DEV · CERT · PROD</text>
+  <line x1="232" y1="166" x2="264" y2="166" class="acs" stroke-width="2.5" stroke-dasharray="5 4" marker-end="url(#ah1)">
+    <animate attributeName="stroke-dashoffset" from="18" to="0" dur="0.9s" repeatCount="indefinite"/>
+  </line>
+  <line x1="480" y1="166" x2="512" y2="166" class="acs" stroke-width="2.5" stroke-dasharray="5 4" marker-end="url(#ah1)">
+    <animate attributeName="stroke-dashoffset" from="18" to="0" dur="0.9s" repeatCount="indefinite"/>
+  </line>
+  <rect x="24" y="256" width="712" height="30" rx="8" class="surf2"/>
+  <text x="380" y="275" text-anchor="middle" font-size="12" class="ts">Remote workspaces are authoritative — <tspan font-weight="700" class="tp">diff before every push, no silent overrides.</tspan></text>
+</svg>

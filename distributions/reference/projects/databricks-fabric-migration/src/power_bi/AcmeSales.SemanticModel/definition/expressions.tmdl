@@ -1,0 +1,13 @@
+expression DatabaseQuery =
+		let
+			database = Sql.Database("<your-workspace-id>.datawarehouse.fabric.microsoft.com", "acme_lakehouse")
+		in
+			database
+
+	lineageTag: ee8944d9-1f53-4ce3-bbf6-cda3f094709b
+	queryGroup: DataSources
+
+	kind: m
+
+	annotation PBI_ResultType = Table
+

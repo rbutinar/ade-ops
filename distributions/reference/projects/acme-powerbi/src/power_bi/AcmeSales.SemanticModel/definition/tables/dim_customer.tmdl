@@ -1,0 +1,54 @@
+table dim_customer
+	lineageTag: 461a856e-6505-4424-80da-62c1126ca852
+	sourceLineageTag: [dbo].[bronze_customers]
+
+	column customer_id
+		dataType: string
+		sourceColumn: customer_id
+		lineageTag: 3637f4b6-5659-47d9-8772-0e168d90b67b
+		sourceLineageTag: customer_id
+		summarizeBy: none
+
+	column customer_name
+		dataType: string
+		sourceColumn: customer_name
+		lineageTag: e6365e96-d535-44fe-b96d-64c560cd4aca
+		sourceLineageTag: customer_name
+		summarizeBy: none
+
+	column region
+		dataType: string
+		sourceColumn: region
+		lineageTag: 4850c84d-c7e1-4822-b933-452ac67e6d8f
+		sourceLineageTag: region
+		summarizeBy: none
+
+	column segment
+		dataType: string
+		sourceColumn: segment
+		lineageTag: ac946c3f-a9aa-4879-8ceb-db3dfd105c84
+		sourceLineageTag: segment
+		summarizeBy: none
+
+	column credit_limit
+		dataType: int64
+		sourceColumn: credit_limit
+		lineageTag: 4aa0df74-cd33-4470-87cc-72c57f4bb408
+		sourceLineageTag: credit_limit
+		summarizeBy: sum
+
+	column is_active
+		dataType: boolean
+		sourceColumn: is_active
+		lineageTag: f49ead1d-a3c3-428b-8202-c00d6da494d8
+		sourceLineageTag: is_active
+		summarizeBy: none
+
+	partition dim_customer = m
+		mode: import
+		source =
+				let
+					Source = DatabaseQuery,
+					Data = Source{[Schema="default", Item="bronze_customers"]}[Data]
+				in
+					Data

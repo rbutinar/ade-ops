@@ -1,0 +1,87 @@
+project:
+  name: databricks-fabric-migration
+  client: reference
+  description: |
+    Reference Databricks → Fabric migration on Databricks built-in
+    samples.tpch.* data. Multi-env lifecycle (DEV / CERT / PROD) showcasing
+    ade-ops engine + Fabric wrappers + medallion + DirectLake + PBIR report.
+
+platforms:
+  databricks:
+    # Adopter overrides this with their own workspace URL.
+    host: ${DATABRICKS_HOST}
+
+  fabric:
+    tenant_id: ${FABRIC_TENANT_ID}
+    capacity_id: ${FABRIC_CAPACITY_ID}  # optional, blank if using existing capacity
+
+environments:
+  dev:
+    overlay: overlays/dev.yaml
+    platforms:
+      databricks:
+        # Personal workspace folder on the adopter's Databricks. The user
+        # path is resolved from the DEMO_USER_EMAIL env var.
+        workspace_path: /Users/${DEMO_USER_EMAIL}/acme_sales_demo
+        catalog: workspace
+        schema: default
+      fabric:
+        workspace_id: ${FABRIC_WORKSPACE_DEV}
+        lakehouse_name: acme_lakehouse
+        auth:
+          method: az_cli
+          tenant_id: ${FABRIC_TENANT_ID}
+
+  cert:
+    overlay: overlays/cert.yaml
+    platforms:
+      databricks:
+        workspace_path: /Shared/AcmeSales/CERT
+        catalog: acme_cert
+        schema: default
+      fabric:
+        workspace_id: ${FABRIC_WORKSPACE_CERT}
+        lakehouse_name: acme_lakehouse
+        auth:
+          method: az_cli
+          tenant_id: ${FABRIC_TENANT_ID}
+
+  prod:
+    overlay: overlays/prod.yaml
+    platforms:
+      databricks:
+        workspace_path: /Shared/AcmeSales/PROD
+        catalog: acme_prod
+        schema: default
+      fabric:
+        workspace_id: ${FABRIC_WORKSPACE_PROD}
+        lakehouse_name: acme_lakehouse
+        auth:
+          method: az_cli
+          tenant_id: ${FABRIC_TENANT_ID}
+
+scopes:
+  notebooks:
+    path: src/notebooks
+    connector: databricks
+
+  power_bi:
+    path: src/power_bi
+    connector: fabric
+
+# Preview skills this scenario opts into for the public publish (TICK-006).
+# Full Fabric provisioning + pipeline set + DirectLake model + PBIR authoring.
+skills:
+  include:
+    - fabric-capacity-list
+    - fabric-items-list
+    - fabric-lakehouse-create
+    - fabric-pipeline-deploy
+    - fabric-pipeline-poll
+    - fabric-pipeline-run
+    - fabric-workspace-create
+    - fabric-workspace-delete
+    - powerbi-directlake-create
+    - pbir-create
+    - pbir-add-page
+    - pbir-clone-template

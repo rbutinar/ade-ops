@@ -1,0 +1,137 @@
+{% extends "main.html" %}
+
+<!--
+  ade-ops landing home — family design kit (mirrors the ade-catalog Vercel
+  landing: dark hero + experience GIF · what-you-get · ADE family · CTA · footer).
+  Rendered only for the page whose front matter sets `template: home.html`
+  (docs/index.md). The `tabs` block renders full-bleed under the site header,
+  so the landing sections span edge-to-edge like the catalog page; the default
+  `content` block is emptied. Accent + layout live in stylesheets/home.css.
+-->
+
+{% block tabs %}
+<section class="ao-hero">
+  <div class="ao-hero__inner">
+    <div class="ao-hero__copy">
+      <h1 class="ao-hero__title">
+        Operate your analytics platform — people and AI agents,
+        <span class="ao-accent">in control</span>.
+      </h1>
+      <p class="ao-hero__sub">
+        ade-ops is an open-source framework for analytics teams working across
+        Databricks, Microsoft Fabric, and Power BI. Author once, deploy
+        everywhere — and every change to a live environment is shown as a diff
+        and confirmed before it's written. Start on a single project; scale to
+        how your whole team operates.
+      </p>
+      <div class="ao-hero__cta">
+        <a class="ao-btn ao-btn--primary" href="https://github.com/rbutinar/ade-ops" target="_blank" rel="noopener">
+          Star on GitHub
+        </a>
+        <a class="ao-btn ao-btn--ghost" href="{{ 'getting-started/' | url }}">
+          Get started
+        </a>
+      </div>
+      <p class="ao-hero__note">
+        Early public preview — expect rough edges, and please
+        <a href="https://github.com/rbutinar/ade-ops/issues/new/choose" target="_blank" rel="noopener">file what you hit</a>.
+        Built and maintained in the open by Roberto Butinar · Apache&nbsp;2.0.
+      </p>
+    </div>
+    <figure class="ao-hero__figure">
+      <img src="{{ 'assets/gifs/ade-ops-experience.gif' | url }}"
+           alt="ade-ops in three acts, on synthetic ACMESALES demo data: a Power BI assistant explains what a revenue measure means and traces it to its Databricks source, changing nothing; a request to add a Margin % measure is built in a sandbox and held at a Review &amp; approve gate before release; a project view reads the week's activity log — 23 closed, 86% on-time, on track."
+           loading="lazy">
+    </figure>
+  </div>
+</section>
+
+<section class="ao-section" id="how">
+  <div class="ao-wrap">
+    <h2 class="ao-h2">What you get</h2>
+    <div class="ao-cards">
+      <div class="ao-card">
+        <div class="ao-card__label">Author once, deploy everywhere</div>
+        <p>A single source of truth in <code>src/</code>, adapted per environment
+          with overlays. The same engine treats Databricks, Fabric and Power BI
+          the same way.</p>
+      </div>
+      <div class="ao-card">
+        <div class="ao-card__label">Diff before every push</div>
+        <p>Remote environments are authoritative. You see exactly what changes
+          before it's written — no silent overrides.</p>
+      </div>
+      <div class="ao-card">
+        <div class="ao-card__label">People and AI agents, together</div>
+        <p>Usable from a plain CLI, and built for AI coding assistants to drive
+          the work — with a human confirmation on anything that touches a live
+          environment.</p>
+      </div>
+      <div class="ao-card">
+        <div class="ao-card__label">AI-agnostic — no lock-in</div>
+        <p>Works with Claude Code, GitHub Copilot and Codex. The same open
+          framework, whichever assistant your team runs.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="ao-section ao-section--alt">
+  <div class="ao-wrap">
+    <h2 class="ao-h2">Part of the ADE family</h2>
+    <p class="ao-lede">
+      Independent, composable tools for analytics data engineering — use either
+      on its own or together. ade-catalog maps
+      <strong>what exists and how it's connected</strong>; ade-ops operates
+      <strong>what you run and where you deploy it</strong>. Map the territory,
+      then operate it.
+    </p>
+    <div class="ao-family">
+      <div class="ao-fcard">
+        <h3>ade<span class="ao-accent">-catalog</span></h3>
+        <p>Analyze, explore, and document your analytics environments — a
+          navigable catalog of what exists and how it's connected.</p>
+        <a href="https://github.com/rbutinar/ade-catalog" target="_blank" rel="noopener">Source on GitHub &#8599;</a>
+      </div>
+      <div class="ao-fcard ao-fcard--here">
+        <span class="ao-badge">You're here</span>
+        <h3>ade<span class="ao-accent">-ops</span></h3>
+        <p>Operate, sync, and deploy across your analytics platforms —
+          Databricks, Power BI, Fabric — with people and AI agents in control.</p>
+        <a href="https://github.com/rbutinar/ade-ops" target="_blank" rel="noopener">Source on GitHub &#8599;</a>
+      </div>
+      <div class="ao-fcard ao-fcard--planned">
+        <h3>ade-skills <span class="ao-tag">Planned</span></h3>
+        <p>A shared knowledge library for AI agents across the family.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="ao-section ao-cta">
+  <div class="ao-wrap ao-cta__inner">
+    <h2 class="ao-h2">Get started right away</h2>
+    <p class="ao-lede">
+      Clone the repo, run the scenario-aware onboarding, and operate your first
+      project from your own machine — Databricks, Fabric, or Power BI.
+    </p>
+    <div class="ao-hero__cta ao-cta__buttons">
+      <a class="ao-btn ao-btn--primary" href="{{ 'getting-started/' | url }}">Get started</a>
+      <a class="ao-btn ao-btn--ghost" href="https://github.com/rbutinar/ade-ops" target="_blank" rel="noopener">Star on GitHub</a>
+    </div>
+    <p class="ao-cta__note">
+      Running a larger, governance-heavy team?
+      <a href="https://github.com/rbutinar/ade-ops/issues/new?template=private_preview_signup.yml" target="_blank" rel="noopener">Talk to us about enterprise &#8599;</a>
+    </p>
+  </div>
+</section>
+
+<footer class="ao-footer">
+  <div class="ao-wrap ao-footer__row">
+    <span class="ao-footer__brand">ade<span class="ao-accent">-ops</span></span>
+    <span class="ao-footer__note">Screens shown on synthetic demo data.</span>
+  </div>
+</footer>
+{% endblock %}
+
+{% block content %}{% endblock %}

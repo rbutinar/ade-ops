@@ -1,0 +1,17 @@
+title: "[feedback] "
+body: |
+  ## What's the friction?
+
+  Describe what felt off, surprising, harder than expected, or just an open thought.
+
+  ## Where in the flow?
+
+  (e.g. onboarding step 3, `/ade-ops-onboarding` scenario picker, the README quickstart, a specific skill, …)
+
+  ## What were you trying to do?
+
+  (Optional — helps me understand the use case behind the friction.)
+
+  ---
+
+  If your feedback is structured (severity, scenario, persona, proposed fix), the [Feedback issue form](https://github.com/rbutinar/ade-ops/issues/new?template=feedback.yml) may be a better fit — it's optimised for actionable items I can convert into commits. Use this Discussion for half-formed thoughts and open conversation.

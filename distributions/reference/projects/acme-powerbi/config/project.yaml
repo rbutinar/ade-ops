@@ -1,0 +1,80 @@
+project:
+  name: acme-powerbi
+  client: reference
+  description: |
+    Reference Databricks -> Power BI (Import mode, no Fabric lakehouse) on
+    Databricks built-in samples.tpch.* data. The "fewer pieces" variant of
+    databricks-fabric-migration: the AcmeSales semantic model reads the
+    Databricks gold layer directly via M Databricks.Catalogs(...), published
+    to a Power BI workspace (PBI Pro is enough — no Fabric capacity, no
+    DirectLake, no lakehouse hydration step).
+
+platforms:
+  databricks:
+    # Source workspace. Adopter overrides with their own URL.
+    host: ${DATABRICKS_HOST}
+
+  # Power BI publish target. The semantic model is Import-mode and connects OUT
+  # to Databricks — so this is only the workspace the model/report are published
+  # to. A Pro workspace is enough; no Fabric capacity required.
+  fabric:
+    tenant_id: ${FABRIC_TENANT_ID}
+
+environments:
+  dev:
+    overlay: overlays/dev.yaml
+    platforms:
+      databricks:
+        # Personal workspace folder on the adopter's Databricks. The user
+        # path is resolved from the DEMO_USER_EMAIL env var.
+        workspace_path: /Users/${DEMO_USER_EMAIL}/acme_powerbi_demo
+        catalog: workspace
+        schema: default
+      fabric:
+        workspace_id: ${PBI_WORKSPACE_DEV}
+        auth:
+          method: az_cli
+          tenant_id: ${FABRIC_TENANT_ID}
+
+  cert:
+    overlay: overlays/cert.yaml
+    platforms:
+      databricks:
+        workspace_path: /Shared/AcmePowerBI/CERT
+        catalog: acme_cert
+        schema: default
+      fabric:
+        workspace_id: ${PBI_WORKSPACE_CERT}
+        auth:
+          method: az_cli
+          tenant_id: ${FABRIC_TENANT_ID}
+
+  prod:
+    overlay: overlays/prod.yaml
+    platforms:
+      databricks:
+        workspace_path: /Shared/AcmePowerBI/PROD
+        catalog: acme_prod
+        schema: default
+      fabric:
+        workspace_id: ${PBI_WORKSPACE_PROD}
+        auth:
+          method: az_cli
+          tenant_id: ${FABRIC_TENANT_ID}
+
+scopes:
+  notebooks:
+    path: src/notebooks
+    connector: databricks
+
+  power_bi:
+    path: src/power_bi
+    connector: fabric
+
+# Preview skills this scenario opts into for the public publish (TICK-006).
+# PBI report authoring on the Import-mode model.
+skills:
+  include:
+    - pbir-create
+    - pbir-add-page
+    - pbir-clone-template

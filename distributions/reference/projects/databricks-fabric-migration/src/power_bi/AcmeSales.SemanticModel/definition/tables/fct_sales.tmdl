@@ -1,0 +1,114 @@
+table fct_sales
+	lineageTag: 60824cf8-019f-4409-a96f-80d5a8427d27
+	sourceLineageTag: [dbo].[gold_ft_sales]
+
+	measure 'Total Revenue' = SUM(fct_sales[total_revenue])
+		formatString: "$"#,0.00;-"$"#,0.00;"$"#,0.00
+		lineageTag: 9f8452f7-5c88-411e-bcfd-a57b756cbe9d
+
+	measure 'Total Quantity' = SUM(fct_sales[total_quantity])
+		formatString: #,0
+		lineageTag: 05c7ccd1-4973-428d-bf51-3a6ec972d1fb
+
+	measure 'Transaction Count' = SUM(fct_sales[transaction_count])
+		formatString: #,0
+		lineageTag: 527dfe99-8123-4caf-825b-c1c02e0cacf5
+
+	measure 'Avg Revenue per Transaction' = DIVIDE([Total Revenue], [Transaction Count])
+		formatString: "$"#,0.00;-"$"#,0.00;"$"#,0.00
+		lineageTag: 560023b8-d508-44e3-816a-e3531b7205ea
+
+	measure 'Distinct Products Sold' = DISTINCTCOUNT(fct_sales[product_id])
+		formatString: #,0
+		lineageTag: a3e74a8b-ab5f-41e9-bf16-1f3719a2d2b2
+
+	column sale_date
+		dataType: string
+		sourceColumn: sale_date
+		lineageTag: 43e91770-c25c-46f1-a049-99ea60e8b6a8
+		sourceLineageTag: sale_date
+		summarizeBy: none
+
+	column product_id
+		dataType: string
+		sourceColumn: product_id
+		lineageTag: cb4ee2cc-21fa-482f-8b73-1287d2c3059d
+		sourceLineageTag: product_id
+		summarizeBy: none
+
+	column customer_id
+		dataType: string
+		sourceColumn: customer_id
+		lineageTag: 7d6fa92c-20b5-45d7-acb2-f9199c6cf574
+		sourceLineageTag: customer_id
+		summarizeBy: none
+
+	column channel
+		dataType: string
+		sourceColumn: channel
+		lineageTag: c015c094-8a21-4e64-bf5d-7e3b0ad140b5
+		sourceLineageTag: channel
+		summarizeBy: none
+
+	column region
+		dataType: string
+		sourceColumn: region
+		lineageTag: d4373159-1c04-46dc-b54c-8778ddccc275
+		sourceLineageTag: region
+		summarizeBy: none
+
+	column total_quantity
+		dataType: int64
+		sourceColumn: total_quantity
+		lineageTag: bf1b41e2-6b19-497b-b23c-1b9072b8ed07
+		sourceLineageTag: total_quantity
+		summarizeBy: sum
+
+	column total_revenue
+		dataType: double
+		sourceColumn: total_revenue
+		lineageTag: ddc7d179-0e8e-4ae9-99af-feb11e9dc313
+		sourceLineageTag: total_revenue
+		summarizeBy: sum
+
+	column transaction_count
+		dataType: int64
+		sourceColumn: transaction_count
+		lineageTag: ed9c47d2-1a74-4b42-ab92-74a2c64eaf72
+		sourceLineageTag: transaction_count
+		summarizeBy: sum
+
+	column avg_unit_price
+		dataType: double
+		sourceColumn: avg_unit_price
+		lineageTag: 7c3136ea-6c8b-4987-9794-884d8935e5a5
+		sourceLineageTag: avg_unit_price
+		summarizeBy: none
+
+	column fiscal_year
+		dataType: int64
+		sourceColumn: fiscal_year
+		lineageTag: 14a7017b-e179-49a5-93b7-c141b66aceaa
+		sourceLineageTag: fiscal_year
+		summarizeBy: none
+
+	column fiscal_quarter
+		dataType: int64
+		sourceColumn: fiscal_quarter
+		lineageTag: 9b282e7b-0826-431c-b003-2ae7c0696c76
+		sourceLineageTag: fiscal_quarter
+		summarizeBy: none
+
+	column fiscal_month
+		dataType: int64
+		sourceColumn: fiscal_month
+		lineageTag: 6f739463-b13c-4d56-8da5-a9cc13ee6be9
+		sourceLineageTag: fiscal_month
+		summarizeBy: none
+
+	partition fct_sales = entity
+		mode: directLake
+		source
+			entityName: gold_ft_sales
+			schemaName: dbo
+			expressionSource: DatabaseQuery

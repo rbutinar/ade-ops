@@ -1,0 +1,209 @@
+/*
+ * ade-ops landing home — family design kit.
+ * Hand-ported accent + layout to mirror the ade-catalog Vercel landing
+ * (Tailwind sky palette) without pulling the Tailwind CDN into the docs build.
+ * Scoped to the .ao-* classes emitted by overrides/home.html, so it never
+ * touches the rest of the MkDocs Material docs pages. Sections use fixed
+ * colours (light base + one dark hero) so the landing looks identical under
+ * both the default and slate palettes, like the catalog page.
+ */
+
+:root {
+  --ao-sky-400: #38bdf8;
+  --ao-sky-500: #0ea5e9;
+  --ao-sky-600: #0284c7;
+  --ao-ink: #111827;      /* gray-900 */
+  --ao-ink-2: #4b5563;    /* gray-600 */
+  --ao-line: #e5e7eb;     /* gray-200 */
+  --ao-wrap: 72rem;       /* max-w-6xl */
+}
+
+.ao-accent { color: var(--ao-sky-500); }
+
+.ao-wrap {
+  max-width: var(--ao-wrap);
+  margin-inline: auto;
+  padding-inline: 1.5rem;
+}
+
+/* --- Hero (dark, full-bleed) --------------------------------------------- */
+.ao-hero {
+  background: var(--ao-ink);
+  color: #fff;
+}
+.ao-hero__inner {
+  max-width: var(--ao-wrap);
+  margin-inline: auto;
+  padding: 4rem 1.5rem;
+  display: grid;
+  gap: 2.5rem;
+  align-items: center;
+}
+@media (min-width: 60em) {
+  .ao-hero__inner { grid-template-columns: 1fr 1fr; padding-block: 5rem; }
+}
+.ao-hero__title {
+  font-size: 2rem;
+  line-height: 1.15;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  margin: 0;
+  color: #fff;
+}
+@media (min-width: 40em) { .ao-hero__title { font-size: 2.4rem; } }
+.ao-hero__title .ao-accent { color: var(--ao-sky-400); }
+.ao-hero__sub {
+  margin-top: 1.25rem;
+  max-width: 36rem;
+  font-size: 1rem;
+  line-height: 1.65;
+  color: #d1d5db;  /* gray-300 */
+}
+.ao-hero__cta { margin-top: 2rem; display: flex; flex-wrap: wrap; gap: 0.75rem; }
+.ao-hero__note { margin-top: 1.5rem; font-size: 0.8rem; line-height: 1.5; color: #9ca3af; }
+.ao-hero__note a { color: var(--ao-sky-400); text-decoration: none; }
+.ao-hero__note a:hover { text-decoration: underline; }
+.ao-hero__figure {
+  margin: 0;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+.ao-hero__figure img { display: block; width: 100%; height: auto; }
+
+/* --- Buttons ------------------------------------------------------------- */
+.ao-btn {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 0.5rem;
+  padding: 0.6rem 1.1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.ao-btn--primary { background: var(--ao-sky-600); color: #fff; }
+.ao-btn--primary:hover { background: var(--ao-sky-500); }
+.ao-btn--ghost {
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+.ao-btn--ghost:hover { border-color: var(--ao-sky-400); color: var(--ao-sky-400); }
+
+/* --- Sections ------------------------------------------------------------ */
+.ao-section { background: #fff; padding-block: 4rem; }
+.ao-section--alt { background: #fff; border-top: 1px solid var(--ao-line); }
+.ao-h2 {
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--ao-ink);
+  margin: 0;
+}
+.ao-lede {
+  margin: 1rem auto 0;
+  max-width: 48rem;
+  text-align: center;
+  font-size: 1rem;
+  line-height: 1.65;
+  color: var(--ao-ink-2);
+}
+.ao-lede strong { color: var(--ao-ink); font-weight: 600; }
+
+/* --- What-you-get cards -------------------------------------------------- */
+.ao-cards {
+  margin-top: 2.5rem;
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 40em) { .ao-cards { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 64em) { .ao-cards { grid-template-columns: repeat(4, 1fr); } }
+.ao-card {
+  border: 1px solid var(--ao-line);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  background: #fff;
+}
+.ao-card__label { font-size: 0.9rem; font-weight: 600; color: var(--ao-sky-600); }
+.ao-card p { margin: 0.5rem 0 0; font-size: 0.9rem; line-height: 1.6; color: var(--ao-ink-2); }
+.ao-card code {
+  background: #f1f5f9;
+  padding: 0.1em 0.35em;
+  border-radius: 0.25rem;
+  font-size: 0.85em;
+}
+
+/* --- Family cards -------------------------------------------------------- */
+.ao-family {
+  margin-top: 2.5rem;
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 48em) { .ao-family { grid-template-columns: repeat(3, 1fr); } }
+.ao-fcard {
+  position: relative;
+  border: 1px solid var(--ao-line);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  background: #fff;
+}
+.ao-fcard h3 { margin: 0; font-size: 1.1rem; font-weight: 600; color: var(--ao-ink); }
+.ao-fcard p { margin: 0.5rem 0 0; font-size: 0.9rem; line-height: 1.6; color: var(--ao-ink-2); }
+.ao-fcard a {
+  margin-top: 1rem;
+  display: inline-block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ao-sky-600);
+  text-decoration: none;
+}
+.ao-fcard a:hover { color: var(--ao-sky-500); }
+.ao-fcard--here { border: 2px solid #bae6fd; background: rgba(240, 249, 255, 0.5); }
+.ao-fcard--planned { border-style: dashed; opacity: 0.75; }
+.ao-fcard--planned h3 { color: var(--ao-ink-2); }
+.ao-badge {
+  position: absolute;
+  right: 1rem;
+  top: 1rem;
+  border-radius: 9999px;
+  background: #e0f2fe;
+  color: #0369a1;
+  padding: 0.1rem 0.55rem;
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+.ao-tag {
+  border-radius: 9999px;
+  background: #f1f5f9;
+  color: #6b7280;
+  padding: 0.1rem 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 500;
+  vertical-align: middle;
+}
+
+/* --- CTA band ------------------------------------------------------------ */
+.ao-cta { background: #f9fafb; border-top: 1px solid var(--ao-line); }
+.ao-cta__inner { text-align: center; max-width: 48rem; }
+.ao-cta__buttons { justify-content: center; margin-top: 1.75rem; }
+.ao-cta .ao-btn--ghost { color: var(--ao-ink); border-color: var(--ao-line); }
+.ao-cta .ao-btn--ghost:hover { border-color: var(--ao-sky-500); color: var(--ao-sky-600); }
+.ao-cta__note { margin-top: 1.5rem; font-size: 0.85rem; color: var(--ao-ink-2); }
+.ao-cta__note a { color: var(--ao-sky-600); font-weight: 600; text-decoration: none; }
+.ao-cta__note a:hover { color: var(--ao-sky-500); }
+
+/* --- Footer -------------------------------------------------------------- */
+.ao-footer { border-top: 1px solid var(--ao-line); background: #fff; }
+.ao-footer__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-block: 1.5rem;
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+.ao-footer__brand { font-weight: 600; color: var(--ao-ink-2); }

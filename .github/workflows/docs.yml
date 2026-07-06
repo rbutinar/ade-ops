@@ -1,0 +1,37 @@
+name: docs
+
+# Builds the MkDocs Material site and deploys it to the `gh-pages` branch.
+#
+# Runs on the PUBLIC repo when `main` is updated — where `docs/` is already
+# sanitized by the /ops-publish filter, so the site can only contain public-safe
+# content. `gh-pages` is an independent branch: the orphan release model
+# force-pushes `main`/`next` only and never touches `gh-pages`, so the site
+# survives a republish. GitHub Pages must be configured to serve `gh-pages`
+# (one-time repo setting).
+on:
+  push:
+    branches: [main]
+    paths:
+      - docs/**
+      - overrides/**
+      - mkdocs.yml
+      - requirements-docs.txt
+      - .github/workflows/docs.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements-docs.txt
+      - name: Build + deploy to gh-pages
+        run: mkdocs gh-deploy --force --no-history

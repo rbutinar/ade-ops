@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+<!--
+  Site-wide <head> enrichment for link unfurls (LinkedIn, Slack, X, iMessage)
+  and search engines. Material's stock base.html emits only <meta name=
+  "description"> and no Open Graph / Twitter Card tags, so a shared link falls
+  back to the bare <title>. This adds og:* + twitter:* computed per page:
+
+    - title       page front-matter `title:` → else "<H1> - ade-ops" → else site_name
+    - description page front-matter `description:` → else config.site_description
+    - url         page.canonical_url (absolute)
+    - image       the branded 1200x630 card in assets/ (built by scratchpad gen)
+
+  home.html extends this file, so the landing inherits the same tags. Set a rich
+  `title:` + `description:` in a page's front matter to override per page.
+-->
+
+{#
+  When a page sets an explicit `title:` in front matter, use it verbatim for the
+  <title> tag. Stock Material appends " - <site_name>", which doubles the brand
+  for a title that already leads with "ade-ops" (the home landing). Pages without
+  an explicit title keep the standard "<Page> - ade-ops". Kept in sync with the
+  og:title / twitter:title computed in extrahead below.
+#}
+{% block htmltitle %}
+  {% if page and page.meta and page.meta.title %}
+    <title>{{ page.meta.title }}</title>
+  {% elif page and page.title and not page.is_homepage %}
+    <title>{{ page.title | striptags }} - {{ config.site_name }}</title>
+  {% else %}
+    <title>{{ config.site_name }}</title>
+  {% endif %}
+{% endblock %}
+
+{% block extrahead %}
+  {% set og_title = config.site_name %}
+  {% if page and page.meta and page.meta.title %}
+    {% set og_title = page.meta.title %}
+  {% elif page and page.title and not page.is_homepage %}
+    {% set og_title = page.title | striptags ~ " - " ~ config.site_name %}
+  {% endif %}
+
+  {% set og_description = config.site_description %}
+  {% if page and page.meta and page.meta.description %}
+    {% set og_description = page.meta.description %}
+  {% endif %}
+
+  {% set og_image = config.site_url ~ "assets/og-card.png" %}
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="{{ config.site_name }}">
+  <meta property="og:title" content="{{ og_title }}">
+  <meta property="og:description" content="{{ og_description }}">
+  <meta property="og:url" content="{{ page.canonical_url }}">
+  <meta property="og:image" content="{{ og_image }}">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="ade-ops — operate your analytics platform, people and AI agents in control.">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{{ og_title }}">
+  <meta name="twitter:description" content="{{ og_description }}">
+  <meta name="twitter:image" content="{{ og_image }}">
+{% endblock %}

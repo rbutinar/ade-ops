@@ -10,7 +10,7 @@ Discovered 2026-05-23 during the `databricks-fabric-migration` demo
 (`/ddf-operator` session). Cross-distribution: every project that
 builds PBIR programmatically will hit the same wall.
 
-## The nine gotchas
+## The ten gotchas
 
 ### 1. Container-level styling lives under `visualContainerObjects`, not `objects`
 
@@ -191,13 +191,68 @@ deployed dataset and offer the refresh — tracked in TICK-012.)
 
 Discovered 2026-05-24 (PBIR visual-feedback loop, finding §B.3).
 
+### 10. Custom theme: wrong wiring is accepted at import but the theme never applies
+
+**Symptom**: the report deploys fine, but every multi-series visual (donut,
+treemap, scatter legend, stacked area) renders with a Microsoft default
+palette instead of the embedded custom theme's `dataColors`. Per-visual
+explicit colors (`dataPoint.defaultColor`) still work — which can **mask the
+failure entirely** in reports that color everything explicitly.
+
+**Root cause**: three distinct wiring mistakes, all silently tolerated:
+
+1. Custom name as `themeCollection.baseTheme` + part at
+   `StaticResources/SharedResources/BaseThemes/{name}.json` — the service
+   can't resolve the unknown base theme and falls back to the **classic**
+   palette (`#01B8AA`, `#374649`, `#FD625E`, ...). This was the engine's
+   original emission.
+2. `customTheme` + `RegisteredResources` package with item/theme name
+   **without** the `.json` extension — the theme pane shows "Custom theme"
+   but `dataColors` never apply (base-theme palette renders).
+3. Item under `SharedResources` with path `BuiltInThemes/{name}.json` for a
+   non-Microsoft name — `BuiltInThemes` is a client-side lookup of gallery
+   themes only; the pane shows "Current theme ()" and nothing applies.
+
+**Fix** (validated 2026-07-09 on AcmeSales_CommandCenter; the emission the
+engine now produces):
+
+```json
+"themeCollection": {
+  "baseTheme":   { "name": "CY26SU05", "reportVersionAtImport": { "visual": "2.9.0",  "report": "3.3.0", "page": "2.3.1" }, "type": "SharedResources" },
+  "customTheme": { "name": "AcmeNeo.json", "reportVersionAtImport": { "visual": "2.10.0", "report": "3.4.0", "page": "2.3.1" }, "type": "RegisteredResources" }
+},
+"resourcePackages": [
+  { "name": "RegisteredResources", "type": "RegisteredResources",
+    "items": [ { "name": "AcmeNeo.json", "path": "AcmeNeo.json", "type": "CustomTheme" } ] }
+]
+```
+
+with the theme JSON at `StaticResources/RegisteredResources/{name}.json`.
+Note the **`.json` extension included** in both the `customTheme.name` and the
+package item `name` — that is the load-bearing detail.
+
+**Diagnostic tells** (edit mode → View → Theme):
+- palette is *classic* → variant 1 (unknown baseTheme);
+- pane says "Custom theme" but colors are the base theme's → variant 2
+  (missing `.json` in the name);
+- pane says "Current theme ()" → variant 3 (BuiltInThemes lookup miss).
+
+**Ground-truth method** when guessing stalls: apply any gallery theme via the
+service UI, save, `getDefinition`, and diff the emitted `report.json` against
+yours — that is how this fix was found.
+
+Discovered 2026-07-09 (AcmeSales_CommandCenter build, `/ops-dev` session).
+Falsifies the "theme handling validated" claim in `/pbir-create` (2026-05-24):
+those reports colored every visual explicitly, so the silent failure was
+invisible.
+
 ## How to use this document
 
 1. **Before writing programmatic PBIR**: skim section headers. Build
    with the gotchas in mind (container vs internal styling, explicit
    transparency, etc.).
 2. **When something renders wrong**: search for the symptom phrasing.
-   These nine cover ~all the silent-failure modes observed so far.
+   These ten cover ~all the silent-failure modes observed so far.
 3. **When adding a new gotcha**: append a numbered section with the same
    shape (Symptom / Root cause / Fix). Update the "How to use" reference
    count.

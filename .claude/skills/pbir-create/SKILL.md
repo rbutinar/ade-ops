@@ -236,7 +236,7 @@ If gotchas detected during verify, include the gotcha IDs in the outcome field.
 
 Honesty checklist for this `preview` skill, **updated post engine v2 patch (2026-05-24)**:
 
-- [x] **Theme handling**: engine v2 supports `theme_json=...` parameter — embeds full theme content in `StaticResources` + declares `resourcePackages`. Validated by ddf-operator round 2026-05-24 — 3 reports deployed end-to-end with embedded themes, zero patch.
+- [x] **Theme handling**: engine v2 supports `theme_json=...` — **the 2026-05-24 "validated" claim was FALSIFIED on 2026-07-09**: those 3 reports set every color explicitly per-visual (`dataPoint.defaultColor`), so the theme never visibly applied and the silent failure went unnoticed. The original wiring (custom name as `baseTheme` + `BaseThemes/{name}.json`) is silently ignored (classic-palette fallback). Fixed in the engine 2026-07-09: `baseTheme` = built-in `CY26SU05`, `customTheme` + `RegisteredResources` package with the **`.json` extension included in the item/theme name**, file at `StaticResources/RegisteredResources/{name}.json`. Validated end-to-end on AcmeSales_CommandCenter (dataColors render on donut/treemap/scatter/stacked-area). Proposed as gotcha #10 for `core/playbooks/pbir-gotchas.md` (pending maintainer confirmation).
 - [x] **Page background**: engine v2 supports `page.add_page(..., background_color=...)` → emits `page.objects.background` with `transparency: 0D`. Validated empirically.
 - [x] **Banner / header textbox**: engine v2 adds `page.add_banner(...)` with multi-paragraph + container background. Validated.
 - [x] **`connectionString` full form**: engine v2 supports `workspace_display_name=` + `initial_catalog=` → emits Power BI Desktop-style full connection string. Validated.

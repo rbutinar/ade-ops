@@ -46,13 +46,19 @@ try:
         lab_head_short,
         publish as op_publish,
         publish_to_git,
+        publish_to_git_tracked,
+        sync_tracked_clone,
         wipe_for_orphan,
+        wipe_working_tree,
     )
     _PUBLISH_AVAILABLE = True
 except ImportError:
     _PUBLISH_AVAILABLE = False
     op_publish = None
     publish_to_git = None
+    publish_to_git_tracked = None
+    sync_tracked_clone = None
+    wipe_working_tree = None
     wipe_for_orphan = None
     def lab_head_short(_path):  # noqa: E306 — minimal fallback
         return ""
@@ -467,20 +473,26 @@ def _resolve_lab_root(lab_arg: str | None) -> Path:
                    "Default is OFF — target is wiped to guarantee that the "
                    "public history reveals nothing about prior state.")
 @click.option("--push", "push_remote", default=None,
-              help="After write: git init + single commit + force-push to "
-                   "this remote URL. Implicitly requires the orphan release "
-                   "model (cannot combine with --preserve-history).")
+              help="After write, push to this remote URL. Alone = ORPHAN model "
+                   "(git init + single commit + force-push, fresh history). With "
+                   "--preserve-history = TRACKED model (incremental commit onto the "
+                   "existing branch + fast-forward push, never force, history kept).")
 @click.option("--branch", default="main",
               help="Target branch name when --push is used (default: main)")
 @click.option("--publish-as-name", default=None,
               help="git user.name for the publish commit (default: use global config)")
-@click.option("--publish-as-email", default=None,
-              help="git user.email for the publish commit (default: use global "
-                   "config). For public preview releases, pass a GitHub no-reply "
-                   "address to keep maintainer email private.")
+@click.option("--publish-as-email", envvar="GITHUB_NOREPLY_EMAIL", default=None,
+              help="git user.email for the publish commit. Defaults to the "
+                   "GITHUB_NOREPLY_EMAIL env var; for public releases set it to a "
+                   "GitHub no-reply address to keep the maintainer email private. "
+                   "If unresolved, --push REFUSES rather than falling back to the "
+                   "local git identity (which would leak a personal email).")
+@click.option("--commit-message-file", type=click.Path(exists=True), default=None,
+              help="Path to a file whose contents become the publish commit "
+                   "message (default: auto 'Release <ts> | rev <sha>').")
 def publish(distribution, target_dir, dry_run, lab_root, yes,
             preserve_history, push_remote, branch,
-            publish_as_name, publish_as_email):
+            publish_as_name, publish_as_email, commit_message_file):
     """Publish a distribution to a public target dir, sanitized and filtered.
 
     Walks the lab tree, drops lab-only paths, applies sanitization-patterns.md
@@ -495,13 +507,11 @@ def publish(distribution, target_dir, dry_run, lab_root, yes,
       Full provenance lives in the lab private repo. Use --preserve-history
       to opt out (incremental publish; not recommended for public targets).
     """
-    if push_remote and preserve_history:
-        click.echo(click.style(
-            "ERROR: --push and --preserve-history are mutually exclusive. "
-            "The orphan release model requires a fresh repo per publish.",
-            fg="red", bold=True,
-        ))
-        sys.exit(2)
+    # --push + --preserve-history together = TRACKED release model: incremental
+    # commit + fast-forward push, public history preserved so external
+    # contributions (PRs) survive. --push alone = orphan (wipe + force-push).
+    # --preserve-history alone (no push) = local incremental write, no remote.
+    tracked = bool(push_remote and preserve_history)
 
     if not _PUBLISH_AVAILABLE:
         click.echo(click.style(
@@ -515,6 +525,10 @@ def publish(distribution, target_dir, dry_run, lab_root, yes,
     lab = _resolve_lab_root(lab_root)
     target = Path(target_dir).resolve()
     lab_rev = lab_head_short(lab)
+    commit_msg = (
+        Path(commit_message_file).read_text(encoding="utf-8").strip()
+        if commit_message_file else None
+    )
 
     click.echo(click.style("\nade-ops publish", fg="cyan", bold=True))
     click.echo("=" * 60)
@@ -523,8 +537,13 @@ def publish(distribution, target_dir, dry_run, lab_root, yes,
     click.echo(f"  distribution    : {distribution}")
     click.echo(f"  target dir      : {target}")
     click.echo(f"  mode            : {'DRY RUN' if dry_run else 'WRITE'}")
-    click.echo(f"  release model   : "
-               f"{'incremental (history preserved)' if preserve_history else 'orphan (target wiped, fresh history)'}")
+    if tracked:
+        _model = "tracked (incremental commit + fast-forward push, history preserved)"
+    elif preserve_history:
+        _model = "incremental local write (no push)"
+    else:
+        _model = "orphan (target wiped, fresh history, force-push)"
+    click.echo(f"  release model   : {_model}")
     if push_remote:
         click.echo(f"  push to remote  : {push_remote} (branch {branch})")
     click.echo()
@@ -568,27 +587,39 @@ def publish(distribution, target_dir, dry_run, lab_root, yes,
         if len(by_file_pat) > 20:
             click.echo(f"  ... and {len(by_file_pat) - 20} more")
 
-    if dry_run:
+    if dry_run and not tracked:
         click.echo()
         click.echo(click.style("DRY RUN complete — no files written.", fg="green"))
         return
+    # Tracked dry-run falls through: it materialises the snapshot into a local
+    # clone of the public repo and computes the git delta — nothing is pushed.
 
-    # Confirm before write
-    if not yes:
+    # Confirm before write (skipped for a dry-run preview)
+    if not yes and not dry_run:
         click.echo()
-        action = "wipe + write" if not preserve_history else "write (preserve)"
-        push_msg = f" + force-push to {push_remote}" if push_remote else ""
+        if tracked:
+            action = "incremental write + fast-forward push (tracked)"
+        elif not preserve_history:
+            action = "wipe + write"
+        else:
+            action = "write (preserve, local)"
+        push_msg = f" -> {push_remote} ({branch})" if push_remote else ""
         click.echo(click.style(
-            f"About to {action} {pre.files_published} files to {target}{push_msg}",
+            f"About to {action}: {pre.files_published} files{push_msg}",
             fg="yellow", bold=True,
         ))
         if not click.confirm("Proceed?", default=False):
             click.echo("Aborted.")
             sys.exit(0)
 
-    # Orphan release model: wipe target before write. Skipped when the
-    # caller explicitly opted into --preserve-history.
-    if not preserve_history:
+    # Prepare the target tree per release model.
+    if tracked:
+        click.echo()
+        click.echo(f"Syncing tracked clone of {push_remote} ({branch})...")
+        sync_tracked_clone(target, remote=push_remote, branch=branch)
+        cleared = wipe_working_tree(target)
+        click.echo(f"  synced to public tip; cleared {cleared} working-tree entries (.git kept)")
+    elif not preserve_history:
         click.echo()
         click.echo("Wiping target dir (orphan release model)...")
         removed = wipe_for_orphan(target)
@@ -618,25 +649,80 @@ def publish(distribution, target_dir, dry_run, lab_root, yes,
 
     # Git publish step (opt-in via --push)
     if push_remote:
+        # A public release commit must never inherit the local git identity —
+        # that is exactly how a maintainer's personal email leaked into the
+        # public repo's release commit. Require an explicit publish identity
+        # (env var GITHUB_NOREPLY_EMAIL or --publish-as-email) before pushing.
+        if not publish_as_email:
+            click.echo(click.style(
+                "REFUSING to push: no publish author email resolved.",
+                fg="red", bold=True,
+            ))
+            click.echo(
+                "A public release commit must not inherit the local git "
+                "identity (it would leak the maintainer's personal email). "
+                "Set GITHUB_NOREPLY_EMAIL (e.g. "
+                "<id>+<user>@users.noreply.github.com) or pass "
+                "--publish-as-email explicitly."
+            )
+            sys.exit(1)
         click.echo()
-        click.echo(click.style(
-            f"Pushing as orphan release to {push_remote} (branch {branch})...",
-            fg="cyan", bold=True,
-        ))
-        git_result = publish_to_git(
-            target,
-            remote=push_remote,
-            branch=branch,
-            lab_rev=lab_rev,
-            author_name=publish_as_name,
-            author_email=publish_as_email,
-        )
-        click.echo(f"  commit  : {git_result.commit_sha[:12]}")
-        click.echo(f"  message : {git_result.commit_message}")
-        click.echo(click.style(
-            f"Force-pushed to {push_remote} ({branch})",
-            fg="green", bold=True,
-        ))
+        if tracked:
+            click.echo(click.style(
+                f"Tracked publish to {push_remote} ({branch})"
+                f"{' — DRY RUN (nothing pushed)' if dry_run else ''}...",
+                fg="cyan", bold=True,
+            ))
+            git_result = publish_to_git_tracked(
+                target,
+                remote=push_remote,
+                branch=branch,
+                lab_rev=lab_rev,
+                commit_message=commit_msg,
+                author_name=publish_as_name,
+                author_email=publish_as_email,
+                dry_run=dry_run,
+            )
+            if git_result.skipped_reason == "no-delta":
+                click.echo(click.style(
+                    "  no changes vs the public tip — nothing to commit.",
+                    fg="green",
+                ))
+            elif dry_run:
+                click.echo(click.style(
+                    "  TRACKED DRY-RUN — would commit the delta below; NOTHING pushed:",
+                    fg="yellow", bold=True,
+                ))
+                click.echo(f"  message : {git_result.commit_message}")
+                for line in (git_result.delta_summary or "").splitlines():
+                    click.echo(f"    {line}")
+            else:
+                click.echo(f"  commit  : {git_result.commit_sha[:12]}")
+                click.echo(f"  message : {git_result.commit_message}")
+                click.echo(click.style(
+                    f"Fast-forward pushed to {push_remote} ({branch}) — history preserved",
+                    fg="green", bold=True,
+                ))
+        else:
+            click.echo(click.style(
+                f"Pushing as orphan release to {push_remote} (branch {branch})...",
+                fg="cyan", bold=True,
+            ))
+            git_result = publish_to_git(
+                target,
+                remote=push_remote,
+                branch=branch,
+                lab_rev=lab_rev,
+                commit_message=commit_msg,
+                author_name=publish_as_name,
+                author_email=publish_as_email,
+            )
+            click.echo(f"  commit  : {git_result.commit_sha[:12]}")
+            click.echo(f"  message : {git_result.commit_message}")
+            click.echo(click.style(
+                f"Force-pushed to {push_remote} ({branch})",
+                fg="green", bold=True,
+            ))
 
 
 @cli.command()
@@ -837,13 +923,56 @@ def pbir_create(name, project, env, spec, model_id, workspace_display_name,
     click.echo(f"  output dir  : {output_dir_path}")
     click.echo(f"  deploy      : {'NO (--no-deploy)' if no_deploy else 'YES'}")
 
+    # --- Resolve the deploy target + binding names BEFORE the build ----------
+    # Fabric's PBIR definitionProperties/2.0.0 schema rejects the legacy
+    # decomposed byConnection (pbiServiceModelId / pbiModelVirtualServerName /
+    # …). ReportBuilder only emits the accepted single-connectionString form
+    # when it has the workspace display name, so auto-resolve it (plus the model
+    # name for the initial catalog) here. Otherwise the documented invocation
+    # (--model-id without --workspace-display-name) produces an unparseable
+    # definition.pbir that fails deploy with Workload_FailedToParseFile.
+    connector = None
+    workspace_id = None
+    resolved_ws_name = workspace_display_name
+    resolved_catalog = initial_catalog
+    if not no_deploy:
+        env_cfg = config.env_config(env)
+        workspace_id = (
+            env_cfg.get("overlays", {}).get("power_bi", {}).get("report_workspace_id")
+            or env_cfg.get("platforms", {}).get("fabric", {}).get("workspace_id")
+        )
+        if not workspace_id:
+            click.echo(click.style(
+                f"\nNo target workspace resolved for env {env}. Set "
+                f"overlays.power_bi.report_workspace_id or "
+                f"platforms.fabric.workspace_id.",
+                fg="red", bold=True,
+            ))
+            _append_ops_log(config, op_label, env, None, "fail",
+                            detail="no-workspace")
+            raise click.ClickException("workspace id not configured")
+        connector = _build_connector("power_bi", config, env=env)
+        if model_id:
+            if not resolved_ws_name:
+                try:
+                    resolved_ws_name = connector.client.get_workspace(
+                        workspace_id).get("displayName")
+                except Exception:
+                    pass
+            if not resolved_catalog:
+                try:
+                    resolved_catalog = connector.client.get_item(
+                        workspace_id, model_id).get("displayName")
+                except Exception:
+                    pass
+
     # Build
     try:
         report = ReportBuilder.from_spec(
             spec_path,
             model_id=model_id,
-            workspace_display_name=workspace_display_name,
-            initial_catalog=initial_catalog,
+            workspace_display_name=resolved_ws_name,
+            initial_catalog=resolved_catalog,
         )
         report_dir = report.save(output_dir_path)
         click.echo(click.style(
@@ -860,23 +989,7 @@ def pbir_create(name, project, env, spec, model_id, workspace_display_name,
         _append_ops_log(config, op_label, env, None, "ok", detail="build-only")
         return
 
-    # Deploy
-    env_cfg = config.env_config(env)
-    workspace_id = (
-        env_cfg.get("overlays", {}).get("power_bi", {}).get("report_workspace_id")
-        or env_cfg.get("platforms", {}).get("fabric", {}).get("workspace_id")
-    )
-    if not workspace_id:
-        click.echo(click.style(
-            f"\nNo target workspace resolved for env {env}. Set "
-            f"overlays.power_bi.report_workspace_id or "
-            f"platforms.fabric.workspace_id.",
-            fg="red", bold=True,
-        ))
-        _append_ops_log(config, op_label, env, None, "fail",
-                        detail="no-workspace")
-        raise click.ClickException("workspace id not configured")
-
+    # Deploy (workspace_id + connector already resolved above, pre-build)
     if not yes:
         click.echo()
         click.echo(click.style(
@@ -887,7 +1000,6 @@ def pbir_create(name, project, env, spec, model_id, workspace_display_name,
             click.echo("Aborted (build is on disk, no deploy).")
             sys.exit(0)
 
-    connector = _build_connector("power_bi", config, env=env)
     parts = []
     for file_path in report_dir.rglob("*"):
         if file_path.is_dir():

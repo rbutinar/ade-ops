@@ -5,8 +5,9 @@ Output is ready for Fabric REST deployment via `FabricConnector`.
 
 Provenance: portato da ADE workshop (`ade_app.platforms.powerbi.pbir_engine`)
 2026-05-24, MVP subset (5 visual types: card, cardVisual, bar/column chart,
-table, textbox). Skip rispetto a ADE: donut, line, pivot, slicer, treemap,
-reader (round-trip), extractor (reverse-eng). On-demand backlog.
+table, textbox). Extended 2026-07-09 with line/area, combo (Y2), donut,
+treemap, scatter, slicer, matrix, nav_button, insight_panel. Still skipped
+vs ADE: reader (round-trip), extractor (reverse-eng). On-demand backlog.
 
 Gotchas embedded as defaults (`core/playbooks/pbir-gotchas.md`):
 - #1 visualContainerObjects vs objects: container styling under visualContainerObjects

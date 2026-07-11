@@ -42,12 +42,14 @@ class PageBuilder:
         width: int = 1280,
         height: int = 720,
         background_color: str | None = None,
+        wallpaper_color: str | None = None,
     ) -> None:
         self.display_name = display_name
         self.page_id = page_id or _page_id()
         self.width = width
         self.height = height
         self.background_color = background_color
+        self.wallpaper_color = wallpaper_color
         self._visuals: list[dict] = []
         self._z_counter = 1000
         self._tab_counter = 1000
@@ -111,6 +113,94 @@ class PageBuilder:
         """Add a styled header banner (textbox + container background)."""
         return self.add_visual(V.banner(title_text, subtitle_text, **kwargs))
 
+    def add_line_chart(
+        self,
+        title: str,
+        category_field: dict,
+        value_fields: list[dict],
+        **kwargs,
+    ) -> "PageBuilder":
+        return self.add_visual(V.line_chart(title, category_field, value_fields, **kwargs))
+
+    def add_area_chart(
+        self,
+        title: str,
+        category_field: dict,
+        value_fields: list[dict],
+        **kwargs,
+    ) -> "PageBuilder":
+        return self.add_visual(
+            V.line_chart(title, category_field, value_fields, area=True, **kwargs)
+        )
+
+    def add_combo_chart(
+        self,
+        title: str,
+        category_field: dict,
+        column_fields: list[dict],
+        line_fields: list[dict],
+        **kwargs,
+    ) -> "PageBuilder":
+        return self.add_visual(
+            V.combo_chart(title, category_field, column_fields, line_fields, **kwargs)
+        )
+
+    def add_donut_chart(
+        self,
+        title: str,
+        category_field: dict,
+        value_field: dict,
+        **kwargs,
+    ) -> "PageBuilder":
+        return self.add_visual(V.donut_chart(title, category_field, value_field, **kwargs))
+
+    def add_treemap(
+        self,
+        title: str,
+        group_field: dict,
+        value_field: dict,
+        **kwargs,
+    ) -> "PageBuilder":
+        return self.add_visual(V.treemap(title, group_field, value_field, **kwargs))
+
+    def add_scatter_chart(
+        self,
+        title: str,
+        detail_field: dict,
+        x_field: dict,
+        y_field: dict,
+        **kwargs,
+    ) -> "PageBuilder":
+        return self.add_visual(
+            V.scatter_chart(title, detail_field, x_field, y_field, **kwargs)
+        )
+
+    def add_slicer(self, field: dict, **kwargs) -> "PageBuilder":
+        return self.add_visual(V.slicer(field, **kwargs))
+
+    def add_matrix(
+        self,
+        title: str,
+        row_fields: list[dict],
+        column_fields: list[dict],
+        value_fields: list[dict],
+        **kwargs,
+    ) -> "PageBuilder":
+        return self.add_visual(
+            V.matrix(title, row_fields, column_fields, value_fields, **kwargs)
+        )
+
+    def add_nav_button(self, text: str, target_page_id: str, **kwargs) -> "PageBuilder":
+        return self.add_visual(V.nav_button(text, target_page_id, **kwargs))
+
+    def add_insight_panel(
+        self,
+        title_text: str,
+        bullets: list[str],
+        **kwargs,
+    ) -> "PageBuilder":
+        return self.add_visual(V.insight_panel(title_text, bullets, **kwargs))
+
     @property
     def visuals(self) -> list[dict]:
         return self._visuals
@@ -127,13 +217,19 @@ class PageBuilder:
             "height": self.height,
             "width": self.width,
         }
+        objects: dict = {}
         if self.background_color:
-            body["objects"] = {
-                "background": [{"properties": {
-                    "color": {"solid": {"color": {"expr": {"Literal": {"Value": f"'{self.background_color}'"}}}}},
-                    "transparency": {"expr": {"Literal": {"Value": "0D"}}},
-                }}],
-            }
+            objects["background"] = [{"properties": {
+                "color": {"solid": {"color": {"expr": {"Literal": {"Value": f"'{self.background_color}'"}}}}},
+                "transparency": {"expr": {"Literal": {"Value": "0D"}}},
+            }}]
+        if self.wallpaper_color:
+            objects["outspace"] = [{"properties": {
+                "color": {"solid": {"color": {"expr": {"Literal": {"Value": f"'{self.wallpaper_color}'"}}}}},
+                "transparency": {"expr": {"Literal": {"Value": "0D"}}},
+            }}]
+        if objects:
+            body["objects"] = objects
         return body
 
 
@@ -196,6 +292,7 @@ class ReportBuilder:
         display_name: str,
         page_id: str | None = None,
         background_color: str | None = None,
+        wallpaper_color: str | None = None,
     ) -> PageBuilder:
         page = PageBuilder(
             display_name,
@@ -203,6 +300,7 @@ class ReportBuilder:
             width=self.width,
             height=self.height,
             background_color=background_color,
+            wallpaper_color=wallpaper_color,
         )
         self._pages.append(page)
         return page
@@ -356,7 +454,42 @@ class ReportBuilder:
             }
         return base
 
+    #: Built-in Microsoft base theme every report rides on. Custom themes are
+    #: layered on top as ``customTheme`` — see ``_report_json``.
+    BASE_THEME = "CY26SU05"
+    #: reportVersionAtImport blocks captured from a service-authored report
+    #: (theme applied via the service Theme gallery, then getDefinition —
+    #: 2026-07-09 ground truth). The service refuses to APPLY a customTheme
+    #: whose versions are older than these, silently keeping the base theme.
+    BASE_THEME_VERSIONS = {"visual": "2.9.0", "report": "3.3.0", "page": "2.3.1"}
+    CUSTOM_THEME_VERSIONS = {"visual": "2.10.0", "report": "3.4.0", "page": "2.3.1"}
+
     def _report_json(self) -> dict:
+        """Generate report.json.
+
+        Custom theme wiring (gotcha #10, discovered 2026-07-09): declaring a
+        custom theme as ``themeCollection.baseTheme`` with an unknown name is
+        SILENTLY ignored (classic-palette fallback), and a
+        ``RegisteredResources`` package is accepted at import but the theme
+        never renders. The shape the SERVICE ITSELF writes when a theme is
+        applied through the UI — verified via getDefinition — is:
+
+        - ``themeCollection.baseTheme`` = a Microsoft built-in
+          (``CY26SU05``) with its version block;
+        - ``themeCollection.customTheme`` = ``{name, reportVersionAtImport,
+          type: SharedResources}``;
+        - ONE ``resourcePackages`` entry ``SharedResources`` whose items
+          include ``{name, path: "BuiltInThemes/{name}.json", type:
+          "CustomTheme"}``;
+        - the theme JSON at
+          ``StaticResources/SharedResources/BuiltInThemes/{name}.json``.
+        """
+        base_theme_name = self.BASE_THEME if self.theme_json else self.theme
+        base_versions = (
+            self.BASE_THEME_VERSIONS
+            if self.theme_json
+            else {"visual": "2.5.0", "report": "3.1.0", "page": "2.3.0"}
+        )
         body = {
             "$schema": (
                 "https://developer.microsoft.com/json-schemas/fabric/item/report/"
@@ -364,12 +497,8 @@ class ReportBuilder:
             ),
             "themeCollection": {
                 "baseTheme": {
-                    "name": self.theme,
-                    "reportVersionAtImport": {
-                        "visual": "2.5.0",
-                        "report": "3.1.0",
-                        "page": "2.3.0",
-                    },
+                    "name": base_theme_name,
+                    "reportVersionAtImport": dict(base_versions),
                     "type": "SharedResources",
                 }
             },
@@ -381,15 +510,26 @@ class ReportBuilder:
                 "useEnhancedTooltips": True,
             },
         }
-        # When a theme JSON is embedded, declare it in resourcePackages.
         if self.theme_json:
+            # Non-built-in custom themes ride in RegisteredResources with the
+            # ``.json`` extension INCLUDED in both the customTheme name and
+            # the package item name (Power BI Desktop emission form). The
+            # SharedResources/BuiltInThemes slot only resolves Microsoft
+            # gallery names — an arbitrary name there yields "Current theme
+            # ()" and no dataColors.
+            theme_ref = f"{self.theme}.json"
+            body["themeCollection"]["customTheme"] = {
+                "name": theme_ref,
+                "reportVersionAtImport": dict(self.CUSTOM_THEME_VERSIONS),
+                "type": "RegisteredResources",
+            }
             body["resourcePackages"] = [{
-                "name": "SharedResources",
-                "type": "SharedResources",
+                "name": "RegisteredResources",
+                "type": "RegisteredResources",
                 "items": [{
-                    "name": self.theme,
-                    "path": f"BaseThemes/{self.theme}.json",
-                    "type": "BaseTheme",
+                    "name": theme_ref,
+                    "path": theme_ref,
+                    "type": "CustomTheme",
                 }],
             }]
         return body
@@ -445,13 +585,13 @@ class ReportBuilder:
         _write_json(def_dir / "version.json", self._version_json())
         _write_json(pages_dir / "pages.json", self._pages_json())
 
-        # Embed the theme JSON in StaticResources when provided.
+        # Embed the theme JSON in StaticResources when provided (custom theme
+        # slot — RegisteredResources; see _report_json for the wiring rules).
         if self.theme_json:
             theme_path = (
                 report_dir
                 / "StaticResources"
-                / "SharedResources"
-                / "BaseThemes"
+                / "RegisteredResources"
                 / f"{self.theme}.json"
             )
             _write_json(theme_path, self.theme_json)

@@ -1115,7 +1115,7 @@ def wipe_for_orphan(target_dir: Path) -> int:
 
 @dataclass
 class GitPublishResult:
-    """Result of ``publish_to_git()``."""
+    """Result of ``publish_to_git()`` / ``publish_to_git_tracked()``."""
 
     target_dir: Path
     remote: str
@@ -1124,6 +1124,7 @@ class GitPublishResult:
     commit_message: str = ""
     pushed: bool = False
     skipped_reason: str = ""
+    delta_summary: str = ""  # tracked: `git diff --cached --stat` (delta vs public tip)
 
 
 def _run_git(args: list[str], cwd: Path, *, check: bool = True) -> subprocess.CompletedProcess:
@@ -1234,6 +1235,132 @@ def publish_to_git(
     _run_git(["push", "--force", "origin", branch], cwd=target_dir)
     result.pushed = True
 
+    return result
+
+
+# ---------------------------------------------------------------------------
+# Tracked (incremental) release model: commit the delta onto the public
+# branch and fast-forward push. Preserves a real linear history so external
+# contributions (PRs) survive and provenance is auditable on the public repo.
+# NEVER force-pushes and NEVER wipes .git. The BLOCK/REPLACE/ALLOW gate still
+# runs in ``publish()`` BEFORE any commit, so a leak aborts the publish before
+# it can enter the (now permanent) public history.
+# ---------------------------------------------------------------------------
+
+
+def wipe_working_tree(target_dir: Path) -> int:
+    """Remove every entry under ``target_dir`` EXCEPT ``.git``.
+
+    Used by the tracked model: the clone's ``.git`` (history) is kept, the
+    working tree is cleared and repopulated with the fresh publish snapshot,
+    and a later ``git add -A`` captures adds, modifications AND deletions of
+    files that dropped out of the snapshot.
+    """
+    target_dir = target_dir.resolve()
+    if not target_dir.exists():
+        return 0
+    removed = 0
+    for entry in target_dir.iterdir():
+        if entry.name == ".git":
+            continue
+        if entry.is_dir() and not entry.is_symlink():
+            shutil.rmtree(entry, onerror=_on_rm_error)
+        else:
+            try:
+                entry.chmod(stat.S_IWRITE)
+            except OSError:
+                pass
+            entry.unlink()
+        removed += 1
+    return removed
+
+
+def sync_tracked_clone(target_dir: Path, *, remote: str, branch: str = "main") -> None:
+    """Ensure ``target_dir`` is a clean clone of ``remote`` at ``branch``.
+
+    Clones if no ``.git`` is present; otherwise sets the origin URL, fetches,
+    checks out ``branch`` and hard-resets to ``origin/<branch>`` so the
+    incremental delta is computed against the true public tip (never stale
+    local state). Cloning requires an empty destination, so any stale staging
+    content is cleared first.
+    """
+    target_dir = target_dir.resolve()
+    if (target_dir / ".git").exists():
+        _run_git(["remote", "set-url", "origin", remote], cwd=target_dir)
+        _run_git(["fetch", "origin", branch], cwd=target_dir)
+        _run_git(["checkout", branch], cwd=target_dir)
+        _run_git(["reset", "--hard", f"origin/{branch}"], cwd=target_dir)
+    else:
+        target_dir.mkdir(parents=True, exist_ok=True)
+        wipe_working_tree(target_dir)  # no .git yet -> empties for a clean clone
+        _run_git(
+            ["clone", "--branch", branch, remote, str(target_dir)],
+            cwd=target_dir.parent,
+        )
+
+
+def publish_to_git_tracked(
+    target_dir: Path,
+    *,
+    remote: str,
+    branch: str = "main",
+    lab_rev: str = "",
+    commit_message: str | None = None,
+    author_name: str | None = None,
+    author_email: str | None = None,
+    dry_run: bool = False,
+) -> GitPublishResult:
+    """Commit the current working tree as a delta onto ``remote``/``branch`` and
+    fast-forward push (tracked release model). Preserves history.
+
+    The caller must have run ``sync_tracked_clone`` + ``wipe_working_tree`` +
+    written the publish snapshot into ``target_dir`` so ``git add -A`` sees the
+    true delta (including deletions). If the snapshot is identical to the public
+    tip, nothing is committed (``skipped_reason='no-delta'``).
+
+    NEVER force-pushes: a non-fast-forward push surfaces as a ``RuntimeError``
+    from ``_run_git`` rather than rewriting the (permanent) public history.
+    """
+    target_dir = target_dir.resolve()
+    if not (target_dir / ".git").exists():
+        raise RuntimeError(
+            f"tracked publish requires a clone of the remote in {target_dir}; "
+            f"call sync_tracked_clone() first."
+        )
+
+    if author_name:
+        _run_git(["config", "user.name", author_name], cwd=target_dir)
+    if author_email:
+        _run_git(["config", "user.email", author_email], cwd=target_dir)
+
+    _run_git(["add", "-A"], cwd=target_dir)
+    status = _run_git(["status", "--porcelain"], cwd=target_dir)
+
+    result = GitPublishResult(target_dir=target_dir, remote=remote, branch=branch)
+    result.delta_summary = _run_git(
+        ["diff", "--cached", "--stat"], cwd=target_dir
+    ).stdout.strip()
+
+    if not status.stdout.strip():
+        result.skipped_reason = "no-delta"
+        return result
+
+    if commit_message is None:
+        ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ")
+        rev_part = f" | rev {lab_rev}" if lab_rev else ""
+        commit_message = f"Release {ts}{rev_part}"
+    result.commit_message = commit_message
+
+    if dry_run:
+        result.skipped_reason = "dry_run"
+        return result
+
+    _run_git(["commit", "-m", commit_message], cwd=target_dir)
+    result.commit_sha = _run_git(["rev-parse", "HEAD"], cwd=target_dir).stdout.strip()
+    # Fast-forward push ONLY. Do NOT add --force here, ever: the tracked model
+    # exists to keep public history immutable + contribution-safe.
+    _run_git(["push", "origin", branch], cwd=target_dir)
+    result.pushed = True
     return result
 
 

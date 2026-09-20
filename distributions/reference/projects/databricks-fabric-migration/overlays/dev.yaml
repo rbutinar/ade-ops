@@ -1,0 +1,30 @@
+databricks:
+  catalog: workspace
+  schema: default
+  workspace_path: /Users/${DEMO_USER_EMAIL}/acme_sales_demo
+
+fabric:
+  workspace_id: ${FABRIC_WORKSPACE_DEV}
+  lakehouse_name: acme_lakehouse
+
+# Power BI overlay block — Reports / SemanticModels live in the DEV workspace
+# until promoted. No model_id yet (semantic model gets created during the
+# migration execute step).
+power_bi:
+  report_workspace_id: ${FABRIC_WORKSPACE_DEV}
+  model_workspace_id: ${FABRIC_WORKSPACE_DEV}
+
+# Resolve the placeholder in src/power_bi/AcmeSales.SemanticModel/definition/
+# expressions.tmdl so the deployed SemanticModel connects to the actual SQL
+# endpoint of the DEV Lakehouse. Produced-by-Track-2: the hostname is captured
+# from `lakehouses/{id}.properties.sqlEndpointProperties.connectionString`
+# right after Lakehouse provisioning.
+transforms:
+  - pattern: "<your-workspace-id>.datawarehouse.fabric.microsoft.com"
+    replace: ${FABRIC_LAKEHOUSE_SQL_HOST}
+
+# _setup notebooks are seeders — run once manually during onboarding, not
+# part of the synced pipeline.
+exclude:
+  - "_setup/*"
+  - "_*"

@@ -1,0 +1,13 @@
+expression DatabaseQuery =
+		let
+			Source = Databricks.Catalogs("<your-databricks-sql-host>", "/sql/1.0/warehouses/<your-warehouse-id>", [Catalog="<your-catalog>", Database="default"])
+		in
+			Source
+
+	lineageTag: ee8944d9-1f53-4ce3-bbf6-cda3f094709b
+	queryGroup: DataSources
+
+	kind: m
+
+	annotation PBI_ResultType = Table
+

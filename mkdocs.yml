@@ -1,0 +1,98 @@
+site_name: ade-ops
+site_description: >-
+  Agentic Data Engineering — Operations. Operate your analytics platform safely,
+  with humans and AI agents — Databricks, Microsoft Fabric, or both.
+site_url: https://rbutinar.github.io/ade-ops/
+repo_url: https://github.com/rbutinar/ade-ops
+repo_name: rbutinar/ade-ops
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  custom_dir: overrides
+  icon:
+    repo: fontawesome/brands/github
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - navigation.indexes
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.tabs.link
+  palette:
+    # White header + light-blue accent to match the ade-catalog family landing.
+    - scheme: default
+      primary: white
+      accent: light blue
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - scheme: slate
+      primary: black
+      accent: light blue
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+
+plugins:
+  - search
+  - blog:
+      blog_dir: blog
+
+# DEFENCE-IN-DEPTH: lab-internal docs must never render in the public site.
+# On the public repo these dirs are already absent (the /ops-publish filter
+# removes them), and the build Action runs there — but excluding them here also
+# keeps a local `mkdocs serve` in the lab from ever rendering internal content.
+exclude_docs: |
+  feedback/
+  backlog/
+  pm/
+  notes/
+  handoffs/
+  migrations/
+  knowledge/
+  design.md
+  toolkit_design.md
+  /README.md
+
+nav:
+  - Home: index.md
+  - Get started:
+      - getting-started/README.md
+      - Quickstarts:
+          - quickstart/databricks-only.md
+          - quickstart/databricks-to-powerbi.md
+          - quickstart/databricks-to-fabric.md
+  - Learn:
+      - learn/index.md
+      - learn/operate-on-databricks.md
+  - Guides: guides/README.md
+  - Concepts: concepts/architecture.md
+  - Reference: reference/capabilities.md
+  - Blog: blog/index.md
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+extra_css:
+  - stylesheets/home.css
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/rbutinar/ade-ops

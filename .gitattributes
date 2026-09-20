@@ -1,0 +1,70 @@
+# ade-ops .gitattributes — cross-platform line-ending normalization.
+#
+# Without this file, git on Windows (with core.autocrlf=true) emits
+# "LF will be replaced by CRLF" warnings for every text file Claude
+# Code or any LF-emitting editor touches. Repo storage is unaffected
+# (always LF), but the warnings are noise.
+#
+# Rule: text files normalize to LF on commit; Windows-only scripts
+# (.ps1, .bat, .cmd) keep CRLF; binaries pass through unchanged.
+
+# Default: auto-detect text, normalize to LF on commit
+* text=auto eol=lf
+
+# Source code — always LF
+*.py     text eol=lf
+*.pyi    text eol=lf
+*.sh     text eol=lf
+*.bash   text eol=lf
+
+# Configuration — always LF (parsed by tools on any platform)
+*.yaml   text eol=lf
+*.yml    text eol=lf
+*.json   text eol=lf
+*.toml   text eol=lf
+*.cfg    text eol=lf
+*.ini    text eol=lf
+
+# Documentation — always LF
+*.md     text eol=lf
+*.rst    text eol=lf
+*.txt    text eol=lf
+
+# SQL — always LF
+*.sql    text eol=lf
+
+# Power BI tabular model definition (semantic models)
+*.tmdl   text eol=lf
+*.tmsl   text eol=lf
+
+# Append-only audit journals — concatenate both sides on merge instead of
+# raising a conflict. `union` is a built-in git merge driver (no per-clone
+# config needed); it ships wherever this committed .gitattributes is checked out.
+docs/ops.log       text eol=lf merge=union
+**/ops.log         text eol=lf merge=union
+
+# Git metadata
+.gitignore         text eol=lf
+.gitattributes     text eol=lf
+.editorconfig      text eol=lf
+.env.example       text eol=lf
+
+# Windows-only scripts — CRLF (Windows shells expect it)
+*.ps1    text eol=crlf
+*.bat    text eol=crlf
+*.cmd    text eol=crlf
+
+# Binary files — pass through, no diff/merge attempts
+*.png    binary
+*.jpg    binary
+*.jpeg   binary
+*.gif    binary
+*.ico    binary
+*.svg    binary
+*.pdf    binary
+*.zip    binary
+*.gz     binary
+*.tar    binary
+*.xlsx   binary
+*.pbix   binary
+*.abf    binary

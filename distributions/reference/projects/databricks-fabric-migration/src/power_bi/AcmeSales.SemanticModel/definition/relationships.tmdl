@@ -1,0 +1,7 @@
+relationship rel_fct_product
+	fromColumn: fct_sales.product_id
+	toColumn: dim_product.product_id
+
+relationship rel_fct_customer
+	fromColumn: fct_sales.customer_id
+	toColumn: dim_customer.customer_id

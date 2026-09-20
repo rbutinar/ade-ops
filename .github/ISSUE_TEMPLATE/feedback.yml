@@ -1,0 +1,98 @@
+name: Feedback (docs / onboarding / skill gap)
+description: Report friction in documentation, onboarding flow, or skill behavior. Compatible with `/ops-feedback` schema in Claude Code.
+title: "[feedback] "
+labels: ["feedback"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template for non-bug, non-feature feedback: outdated docs, missing steps, confusing flow, skill output that didn't match expectations, onboarding gaps.
+
+        If you're a Claude Code user, you can also run `/ops-feedback` locally — it auto-captures git/cwd/ops.log context and produces a structured file that mirrors the fields below.
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: One or two sentences describing the gap or friction.
+      placeholder: "The Databricks→Fabric quickstart skips the part where you create the Fabric workspace. New users hit a 404 on the first pull because the workspace ID points at nothing."
+    validations:
+      required: true
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: Feedback type
+      options:
+        - outdated-docs
+        - missing-step
+        - skill-gap (skill exists but doesn't cover this case)
+        - onboarding-friction
+        - naming-confusion
+        - example-needed
+        - other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How blocking is this for getting work done?
+      options:
+        - low (cosmetic, doesn't block)
+        - normal (slows down but workaround exists)
+        - high (blocks first-time users from completing onboarding)
+        - critical (silent failure, wrong result, data loss risk)
+    validations:
+      required: true
+
+  - type: input
+    id: persona
+    attributes:
+      label: Skill / persona involved (if any)
+      description: If a Claude Code skill surfaced this — which one?
+      placeholder: "/ade-ops-onboarding, /pbir-create, /ops-feedback, ..."
+    validations:
+      required: false
+
+  - type: input
+    id: project
+    attributes:
+      label: Scenario in use
+      placeholder: "databricks-to-fabric / databricks-to-powerbi / databricks-only"
+    validations:
+      required: false
+
+  - type: input
+    id: commit
+    attributes:
+      label: ade-ops commit (git rev-parse HEAD)
+      placeholder: "c1a8d4b"
+    validations:
+      required: false
+
+  - type: textarea
+    id: detail
+    attributes:
+      label: Detail
+      description: What happened? What did you expect? Where did the flow break?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed_fix
+    attributes:
+      label: Proposed fix (optional)
+      description: If you have a concrete suggestion — e.g. "add step 3a to the quickstart that says X" — drop it here.
+    validations:
+      required: false
+
+  - type: textarea
+    id: ops_log
+    attributes:
+      label: Recent ops.log (optional)
+      description: Last 5-10 lines of your project's ops.log, if relevant.
+      render: shell
+    validations:
+      required: false

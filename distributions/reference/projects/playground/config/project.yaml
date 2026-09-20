@@ -1,0 +1,40 @@
+project:
+  name: playground
+  client: reference
+  description: |
+    Zero-friction ade-ops playground — "operational on Databricks in ~5
+    minutes". Databricks-only (no Fabric, no Power BI): a self-contained
+    synthetic dataset (pure Spark, no samples.* / no CSV) + one analytics
+    notebook, so a cold evaluator with just a free Databricks workspace + PAT
+    can clone, push, run, and query end-to-end. The "minimal infra" slice of
+    the planned full local playground (a local DuckDB connector is the V2).
+
+platforms:
+  databricks:
+    # The only thing you need: a Databricks workspace URL (free-tier / CE works).
+    host: ${DATABRICKS_HOST}
+
+environments:
+  dev:
+    overlay: overlays/dev.yaml
+    platforms:
+      databricks:
+        # Personal workspace folder — resolved from your Databricks user email.
+        workspace_path: /Users/${DEMO_USER_EMAIL}/ade_playground
+        catalog: workspace
+        schema: default
+
+scopes:
+  notebooks:
+    path: src/notebooks
+    connector: databricks
+
+# Distribution-general preview personas opted into the public publish here, in
+# the base project (TICK-006). Not scenario-specific, so they ride the entry
+# project's opt-in. ops-operator is the 6th public persona named in the README;
+# ops-local-manager is the multi-operator local steward. (seat +
+# ops-session-close stay held until the seat workflow is publicly tested.)
+skills:
+  include:
+    - ops-local-manager
+    - ops-operator

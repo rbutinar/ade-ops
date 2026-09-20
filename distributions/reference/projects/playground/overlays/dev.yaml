@@ -1,0 +1,10 @@
+databricks:
+  catalog: workspace
+  schema: default
+  workspace_path: /Users/${DEMO_USER_EMAIL}/ade_playground
+
+# _setup is a one-shot seeder (run manually once), not part of the synced
+# pipeline — only analytics/* is pushed + run.
+exclude:
+  - "_setup/*"
+  - "_*"

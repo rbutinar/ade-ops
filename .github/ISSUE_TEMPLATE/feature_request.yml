@@ -1,0 +1,79 @@
+name: Feature request
+description: Suggest a new capability for the framework, a connector, or a skill.
+title: "[feat] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for proposing a feature. The clearer the use case and the simpler the smallest viable shape, the more likely it lands.
+
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation
+      description: What concrete situation prompted this request? What can't you do today?
+      placeholder: "Today there's no way to deploy a notebook to multiple Databricks workspaces in one operation. I have a `dev` and a `cert` workspace and have to invoke `push` twice."
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Smallest viable shape of the change. Sketch the API or the CLI flag, not the implementation details.
+      placeholder: |
+        `python -m core.cli push --env dev --env cert --scope notebooks`
+        — accept repeated `--env` flags, iterate the push under the hood, fail fast on first error.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: What other shapes did you consider? Why this one?
+      placeholder: |
+        - Wrapper script outside ade-ops — rejected: pushes diverge silently if one env is updated and the other isn't.
+        - New `multi-push` skill — rejected: surface area too big for a flag-shaped need.
+    validations:
+      required: false
+
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Affected area
+      multiple: true
+      options:
+        - engine (config / overlay / state / operations)
+        - connector (Databricks)
+        - connector (Fabric)
+        - connector (Power BI)
+        - CLI
+        - skill (new)
+        - skill (existing — extension)
+        - documentation
+        - onboarding
+        - tooling (tests / CI / publish)
+        - other
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: scenarios
+    attributes:
+      label: Which onboarding scenarios benefit?
+      description: Multi-select if applicable.
+      options:
+        - label: Databricks → Power BI
+        - label: Databricks → Fabric
+        - label: Databricks-only
+        - label: Cross-cutting (any scenario)
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context
+      description: Links, prior art, related issues, references to existing skills or connectors.
+    validations:
+      required: false

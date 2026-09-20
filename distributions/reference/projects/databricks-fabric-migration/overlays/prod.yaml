@@ -1,0 +1,20 @@
+databricks:
+  catalog: acme_prod
+  schema: default
+  workspace_path: /Shared/AcmeSales/PROD
+
+fabric:
+  workspace_id: ${FABRIC_WORKSPACE_PROD}
+  lakehouse_name: acme_lakehouse
+
+power_bi:
+  report_workspace_id: ${FABRIC_WORKSPACE_PROD}
+  model_workspace_id: ${FABRIC_WORKSPACE_PROD}
+
+transforms:
+  - pattern: "workspace.default"
+    replace: "acme_prod.default"
+
+exclude:
+  - "_setup/*"
+  - "_*"

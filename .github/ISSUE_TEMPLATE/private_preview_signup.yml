@@ -1,0 +1,126 @@
+name: Private preview signup
+description: Express interest in the ade-ops private preview. The maintainer reaches out when slots open.
+title: "[preview] "
+labels: ["private-preview-signup"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for your interest in ade-ops.
+
+        > ⚠️ **This issue will be PUBLIC.** Do not include private workspace IDs, real tenant UUIDs, client names, internal project codes, or any information you would not put on a public LinkedIn post. Use generic descriptions of your use case. The maintainer follows up via GitHub mention or your stated contact channel.
+
+        Required fields are marked. Everything else is optional — answer what you're comfortable sharing publicly.
+
+  - type: input
+    id: github_handle
+    attributes:
+      label: GitHub handle
+      description: Pre-filled from the issue author by default. Useful so the maintainer can @-mention you on follow-ups.
+      placeholder: "@your-handle"
+    validations:
+      required: false
+
+  - type: textarea
+    id: use_case
+    attributes:
+      label: What would you use ade-ops for?
+      description: One or two paragraphs. What pipeline / scenario do you have in mind? Generic shape is fine — no need for specifics.
+      placeholder: "We have ~6 Databricks notebooks deployed across two workspaces (dev + prod) and a Fabric report on top. Right now deploys are manual notebook copy-paste. We'd like to evaluate ade-ops as the supervisory layer to keep the two environments in sync without re-inventing CI."
+    validations:
+      required: true
+
+  - type: dropdown
+    id: scenario
+    attributes:
+      label: Closest scenario to your stack
+      description: Which of the V1 reference scenarios matches you best?
+      options:
+        - databricks-to-powerbi (most common — Databricks data, Power BI reports)
+        - databricks-to-fabric (Databricks data, Fabric assets / Direct Lake)
+        - databricks-only (Databricks notebooks + jobs, no BI layer)
+        - mixed / something different — please describe in the use case above
+    validations:
+      required: true
+
+  - type: dropdown
+    id: team_size
+    attributes:
+      label: Team size touching the platform
+      description: How many people would interact with ade-ops in your team?
+      options:
+        - solo (1 person)
+        - small (2-5 people)
+        - mid (6-20 people)
+        - large (20+ people)
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: platforms
+    attributes:
+      label: Platforms currently in your stack
+      description: Tick all that apply.
+      options:
+        - label: Databricks (any tier — Community Edition through Premium)
+        - label: Microsoft Fabric
+        - label: Power BI (Pro / Premium / Embedded)
+        - label: Azure DevOps
+        - label: GitHub / GitHub Enterprise
+        - label: Other (mention in the use case)
+
+  - type: dropdown
+    id: adoption_stage
+    attributes:
+      label: Adoption stage
+      options:
+        - exploring (reading docs, evaluating fit)
+        - piloting (have a sandbox use case in mind)
+        - migrating (have an existing workflow we want to move to ade-ops)
+        - production (we'd run it on something real once stable)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: timing
+    attributes:
+      label: Timing
+      description: When would you want to actually try it?
+      options:
+        - already evaluating now
+        - within a few weeks
+        - within a few months
+        - exploratory, no concrete timeline
+    validations:
+      required: true
+
+  - type: dropdown
+    id: contact_preference
+    attributes:
+      label: Preferred contact channel for follow-up
+      description: How should the maintainer reach you?
+      options:
+        - reply on this issue (default)
+        - GitHub Discussions thread
+        - mention via @-tag on a new issue
+        - I'll initiate the next step myself
+    validations:
+      required: true
+
+  - type: textarea
+    id: anything_else
+    attributes:
+      label: Anything else
+      description: Constraints, questions, suggestions, things the maintainer should know up front.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: ack
+    attributes:
+      label: Acknowledgement
+      options:
+        - label: I understand this issue is public and I have not included sensitive information.
+          required: true
+        - label: I understand the private preview has limited slots and the maintainer will reach out when one matches my profile (no SLA).
+          required: true

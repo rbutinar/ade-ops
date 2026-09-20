@@ -1,0 +1,54 @@
+# ade-ops project configuration
+# Copy this to projects/{client}/{project}/config/project.yaml
+
+project:
+  name: "{project}"
+  client: "{client}"
+  description: "{description}"
+
+# Platform connections
+platforms:
+  databricks:
+    host: "{workspace_url}"
+    # credentials: config/credentials.yaml (default, per-project)
+
+  # fabric:
+  #   tenant: "{tenant}"
+
+# Environments — each has an overlay for env-specific config
+environments:
+  cert:
+    description: Certification / QA
+    overlay: overlays/cert.yaml
+    platforms:
+      databricks:
+        workspace_path: "{cert_workspace_path}"
+        catalog: "{cert_catalog}"
+        schema: "{schema}"
+      # fabric:
+      #   workspace_id: "{cert_workspace_id}"
+      #   model_name: "{cert_model_name}"
+
+  prod:
+    description: Production
+    overlay: overlays/prod.yaml
+    platforms:
+      databricks:
+        workspace_path: "{prod_workspace_path}"
+        catalog: "{prod_catalog}"
+        schema: "{schema}"
+      # fabric:
+      #   workspace_id: "{prod_workspace_id}"
+      #   model_name: "{prod_model_name}"
+
+# Asset scopes — what can be pushed/pulled
+scopes:
+  notebooks:
+    path: src/notebooks
+    connector: databricks
+  # power_bi:
+  #   path: src/power_bi
+  #   connector: fabric
+
+# Patch aging warning (days)
+patch_max_age_days: 7

@@ -1,0 +1,9 @@
+#!/bin/sh
+# Keep the vendor-neutral skill catalog (.agents/skills) in sync with the source
+# of truth (.claude/skills) so non-Claude harnesses (Codex, …) never read a stale
+# catalog. See core/conventions/agent-skills-catalog.md.
+# Activate per clone:  git config core.hooksPath .githooks
+python -m tools.sync_agent_skills || {
+    echo "pre-commit: skill projection failed (python -m tools.sync_agent_skills)" >&2
+    exit 1
+}

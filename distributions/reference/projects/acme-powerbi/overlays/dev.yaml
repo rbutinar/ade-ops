@@ -1,0 +1,33 @@
+databricks:
+  catalog: workspace
+  schema: default
+  workspace_path: /Users/${DEMO_USER_EMAIL}/acme_powerbi_demo
+
+# Power BI overlay block — Report / SemanticModel are published to the DEV
+# Power BI workspace until promoted. No model_id yet (it is assigned on first
+# publish via /powerbi-publish).
+power_bi:
+  report_workspace_id: ${PBI_WORKSPACE_DEV}
+  model_workspace_id: ${PBI_WORKSPACE_DEV}
+
+# Resolve the placeholders in the AcmeSales Import-mode semantic model so the
+# deployed model connects to the adopter's Databricks SQL warehouse:
+#   - DATABRICKS_SQL_HOST    bare hostname (no https://), e.g.
+#                            adb-123.4.azuredatabricks.net or
+#                            dbc-xxxx.cloud.databricks.com
+#   - DATABRICKS_WAREHOUSE_ID  the SQL warehouse id (the long hex id from the
+#                            warehouse's connection details)
+#   - <your-catalog>         the per-env Databricks catalog (DEV = workspace)
+transforms:
+  - pattern: "<your-databricks-sql-host>"
+    replace: ${DATABRICKS_SQL_HOST}
+  - pattern: "<your-warehouse-id>"
+    replace: ${DATABRICKS_WAREHOUSE_ID}
+  - pattern: "<your-catalog>"
+    replace: "workspace"
+
+# _setup notebooks are seeders — run once manually during onboarding, not part
+# of the synced pipeline.
+exclude:
+  - "_setup/*"
+  - "_*"

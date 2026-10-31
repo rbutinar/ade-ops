@@ -1,4 +1,4 @@
 # Docs/learning site (MkDocs Material) — build-time only, not needed to run ade-ops.
 # Build locally:  pip install -r requirements-docs.txt && mkdocs serve
-# Deployed by .github/workflows/docs.yml (mkdocs gh-deploy -> gh-pages branch).
+# Not deployed: the GitHub Pages site was retired on 2026-10-31; the docs are read on GitHub.
 mkdocs-material>=9.5

@@ -182,7 +182,7 @@ ade-ops is one of two independent, composable products under the **ADE** umbrell
 | Product | What it does | Links |
 |---|---|---|
 | **ade-catalog** | Maps *what exists and how it's connected* — scans your data landscape and turns it into a navigable catalog that people and AI agents can both work from. | [repo](https://github.com/rbutinar/ade-catalog) · [app](https://ade-catalog.vercel.app) |
-| **ade-ops** *(this repo)* | Operates *what you run and where you deploy it* — Databricks, Power BI, and Fabric — with every change reviewed before it lands. | [repo](https://github.com/rbutinar/ade-ops) · [docs](https://rbutinar.github.io/ade-ops) |
+| **ade-ops** *(this repo)* | Operates *what you run and where you deploy it* — Databricks, Power BI, and Fabric — with every change reviewed before it lands. | [repo](https://github.com/rbutinar/ade-ops) · [docs](https://github.com/rbutinar/ade-ops/tree/main/docs) |
 | **ade-skills** | A shared knowledge library for the family. | *Planned* |
 
 **Map the territory, then operate it.** Both products are built to be used by people and AI agents side by side, and are open source under Apache 2.0, maintained by Roberto Butinar.

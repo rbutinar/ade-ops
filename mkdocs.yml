@@ -2,7 +2,8 @@ site_name: ade-ops
 site_description: >-
   Agentic Data Engineering — Operations. Operate your analytics platform safely,
   with humans and AI agents — Databricks, Microsoft Fabric, or both.
-site_url: https://rbutinar.github.io/ade-ops/
+# No site_url: the docs are read on GitHub, in docs/. The MkDocs site on GitHub Pages was
+# retired on 2026-10-31 (gh-pages now redirects to ade-family.com/ops); mkdocs serve still works.
 repo_url: https://github.com/rbutinar/ade-ops
 repo_name: rbutinar/ade-ops
 edit_uri: edit/main/docs/
